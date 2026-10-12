@@ -1,0 +1,55 @@
+/* CopilotKit chat in the colors and type of the Hotel Seeblick website (see `src/theme.ts`) */
+[data-copilotkit] {
+  --cpk-default-font-family: 'Mulish', system-ui, sans-serif;
+  /* The chat sits on lake mist; cards, the input and the suggestions are white */
+  --background: #e4eff3;
+  --foreground: #1e2422;
+  --card: #ffffff;
+  --card-foreground: #1e2422;
+  --popover: #ffffff;
+  --popover-foreground: #1e2422;
+  --primary: #1f3a33;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #1e2422;
+  --muted: #ffffff;
+  --muted-foreground: #4a5551;
+  --accent: #e4eff3;
+  --accent-foreground: #1f3a33;
+  --border: #b9c2be;
+  --input: #b9c2be;
+  --ring: #2a6380;
+  --radius: 0;
+}
+
+/* The website uses square corners throughout */
+[data-copilotkit] [class*='cpk:rounded'] {
+  border-radius: 0;
+}
+
+[data-copilotkit] [data-testid='copilot-welcome-screen'] h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+[data-copilotkit] [data-testid='copilot-suggestion'] {
+  background: #ffffff;
+  font-weight: 600;
+}
+
+[data-copilotkit] [data-testid='copilot-suggestion']:hover {
+  border-color: #2a6380;
+  color: #2a6380;
+}
+
+/* Show the focus on the whole input box instead of the text area inside it */
+[data-copilotkit] [data-testid='copilot-chat-textarea']:focus-visible {
+  outline: none;
+}
+
+[data-copilotkit] [data-testid='copilot-chat-input']:has(:focus-visible) {
+  outline: 2px solid #2a6380;
+  outline-offset: 2px;
+}

@@ -1,0 +1,381 @@
+/* Hotel Seeblick website */
+:root {
+  /* color */
+  --forest: #1f3a33;
+  --forest-deep: #16291f;
+  --forest-mid: #2e5248;
+  --brass: #8a5f2a;
+  --brass-dark: #6f4c21;
+  --lake: #2a6380;
+  --lake-mist: #e4eff3;
+  --lake-tint: #c6dae3;
+  --lake-foam: #bfd9e6;
+  --sand: #d9c9a8;
+  --sand-light: #e7d8b9;
+  --meadow-tint: #d8e2dc;
+  --wheat-tint: #e6dcc8;
+  --ink: #1e2422;
+  --stone: #4a5551;
+  --field-line: #b9c2be;
+  --footer-line: #2f4a3e;
+  --footer-text: #d5ddd9;
+  --white: #ffffff;
+  --success: #e3efe7;
+  --error: #a3261e;
+
+  /* type */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Mulish', system-ui, sans-serif;
+  --fs-body: 17px;
+  --fs-lead: 20px;
+  --fs-small: 15px;
+  --fs-eyebrow: 13px;
+  --fs-h1: clamp(48px, 6vw, 88px);
+  --fs-h2: clamp(36px, 4vw, 52px);
+  --fs-h3: 30px;
+
+  /* layout */
+  --container: 1280px;
+  --gutter: 40px;
+  --section-y: 96px;
+  --shadow-float: 0 12px 40px rgba(20, 40, 34, 0.16);
+  /* Height of the sticky header, so sections scrolled into view start below it */
+  --header-height: 80px;
+  /* About a third of the window for the AI companion */
+  --companion-width: clamp(360px, 33.333vw, 600px);
+
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--white);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+img { display: block; max-width: 100%; }
+a { color: var(--forest); }
+a:hover { color: var(--brass); }
+h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 500; }
+h1 { font-size: var(--fs-h1); line-height: 1.02; }
+h2 { font-size: var(--fs-h2); line-height: 1.08; }
+h3 { font-size: var(--fs-h3); font-weight: 600; line-height: 1.2; }
+p { margin: 0; }
+fieldset { border: none; margin: 0; padding: 0; min-width: 0; }
+legend { padding: 0; }
+address { font-style: normal; }
+:focus-visible { outline: 2px solid var(--lake); outline-offset: 2px; }
+/* Content that scrolls into view fades in from slightly below (`reveal.ts`). An animation, not a transition, so it
+   always starts from the hidden state, even if the browser didn't paint that state before. */
+[data-reveal='hidden'] { opacity: 0; }
+[data-reveal='shown'] { animation: reveal 0.6s ease-out both; }
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.container { max-width: var(--container); margin: 0 auto; padding-left: var(--gutter); padding-right: var(--gutter); }
+.section { padding-top: var(--section-y); padding-bottom: var(--section-y); }
+.section.narrow { max-width: 760px; }
+.section-mist { background: var(--lake-mist); }
+.section-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 48px; }
+.lead { font-size: var(--fs-lead); max-width: 560px; }
+.hint { color: var(--stone); font-size: var(--fs-small); }
+.error { color: var(--error); font-weight: 700; }
+.notice { padding: 16px 20px; background: var(--lake-mist); }
+
+/* Eyebrow: lake with a wave mark on white, sand on forest, lake foam on lake */
+.eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: var(--fs-eyebrow); font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--lake); }
+.hero .eyebrow, .page-header .eyebrow { color: var(--sand-light); }
+.offer-band .eyebrow { color: #cfe3ec; }
+
+/* Buttons and links */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 28px;
+  border: 0;
+  background: var(--forest);
+  color: var(--white);
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.button:hover { background: var(--forest-deep); color: var(--white); }
+.button:disabled { opacity: 0.45; cursor: not-allowed; }
+.button-brass { background: var(--brass); }
+.button-brass:hover { background: var(--brass-dark); }
+.button-large { min-height: 56px; padding: 0 32px; font-size: var(--fs-body); }
+.text-link { padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--forest); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.text-link:hover { color: var(--brass); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 24px; }
+
+/* Form fields */
+label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); }
+input:not([type='checkbox'], [type='radio'], [type='range']), select {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--field-line);
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-body);
+  letter-spacing: normal;
+  text-transform: none;
+}
+input[type='range'] { accent-color: var(--lake); }
+input[type='checkbox'], input[type='radio'] { width: 18px; height: 18px; margin: 0; accent-color: var(--forest); }
+label.checkbox { flex-direction: row; align-items: center; gap: 10px; font-size: var(--fs-small); font-weight: 400; letter-spacing: normal; text-transform: none; color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { min-height: 40px; padding: 0 16px; border: 1px solid var(--field-line); background: var(--white); color: var(--ink); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
+.chip:hover { border-color: var(--forest); }
+.chip-active, .chip-active:hover { background: var(--forest); border-color: var(--forest); color: var(--white); }
+
+/* Header */
+.header { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; background: var(--forest); color: var(--white); }
+/* Full width, so the wordmark and the switch of the AI companion sit at the edges of the window */
+/* The bar at the top of the header that shows a page change: it runs across in sand and fades out */
+.navigation-progress { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--sand); transform-origin: left; transform: scaleX(0); animation: navigation-progress 0.7s ease-out; pointer-events: none; }
+@keyframes navigation-progress {
+  0% { transform: scaleX(0); opacity: 1; }
+  60% { transform: scaleX(0.8); opacity: 1; }
+  85% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+.header > .container { flex: 1 1 0; min-width: 0; max-width: none; }
+.header-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px 32px; min-height: var(--header-height); padding-top: 16px; padding-bottom: 16px; }
+.wordmark { display: flex; flex-direction: column; line-height: 1.1; color: var(--white); text-decoration: none; }
+.wordmark:hover { color: var(--white); }
+.wordmark-name { font-family: var(--font-display); font-size: 30px; font-weight: 600; letter-spacing: 0.04em; }
+.wordmark-subtitle { font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--sand); }
+.main-nav { display: flex; flex-wrap: wrap; gap: 8px 28px; margin-left: auto; font-size: var(--fs-small); font-weight: 600; }
+.main-nav a { color: var(--white); text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent; }
+.main-nav a:hover { color: var(--sand); }
+.main-nav a.active { border-bottom-color: var(--sand); }
+.header .button { min-height: 44px; padding: 0 22px; }
+
+/* Hero and page header: forest mid with mountains above the lake */
+.hero, .page-header { position: relative; overflow: hidden; background: var(--forest-mid); color: var(--white); }
+.mountain-scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-content, .page-header-content { position: relative; display: flex; flex-direction: column; gap: 20px; }
+.hero-content { padding-top: 120px; padding-bottom: 160px; }
+.hero-content h1 { max-width: 760px; }
+.hero-content .lead, .page-header-content .lead { color: #eef2ef; }
+.page-header-content { padding-top: 72px; padding-bottom: 104px; }
+.page-header-content h1 { font-size: clamp(44px, 5vw, 72px); }
+.page-header .mountain-scene { top: auto; height: 60%; }
+
+/* Booking bar overlapping the hero */
+.booking-bar-section { position: relative; margin-top: -64px; }
+.booking-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 20px; padding: 28px; background: var(--white); box-shadow: var(--shadow-float); }
+.booking-bar label { flex: 1 1 180px; }
+.booking-bar .booking-bar-guests { flex-basis: 140px; }
+.booking-bar .button { flex: 0 0 auto; padding: 0 32px; }
+
+/* Text and image split */
+.split { display: flex; flex-wrap: wrap; align-items: center; gap: 64px; }
+.split > * { flex: 1 1 420px; min-width: 0; }
+.split-text { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+.split-text p { color: var(--stone); }
+.split-image { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; }
+.intro { padding-top: 120px; padding-bottom: 80px; }
+
+.wave-divider { display: block; width: 100%; height: 40px; background: var(--white); }
+
+/* Room cards */
+.room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 32px; }
+.room-card { display: flex; flex-direction: column; background: var(--white); }
+.section-mist .room-card, .rooms-layout .room-card, .other-rooms .room-card { border: 0; }
+.rooms-layout .room-card, .other-rooms .room-card { outline: 1px solid var(--lake-mist); }
+.room-card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.room-card-body { display: flex; flex-direction: column; flex: 1; gap: 10px; padding: 28px; }
+.room-card h3 a { color: var(--ink); text-decoration: none; }
+.room-card h3 a:hover { color: var(--brass); }
+.room-card-text { color: var(--stone); font-size: var(--fs-small); }
+.room-card-meta { color: var(--stone); font-size: 13px; }
+.room-card-footer { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 8px; }
+.price { font-weight: 700; color: var(--lake); }
+
+/* Contact */
+.contact { align-items: flex-start; }
+.contact .facts { margin: 8px 0; }
+.contact-form { display: flex; flex-direction: column; gap: 20px; padding: 40px; background: var(--lake-mist); }
+.contact-form h2 { font-size: 40px; }
+.contact-form .button { align-self: flex-start; }
+textarea { padding: 12px; border: 1px solid var(--field-line); border-radius: 0; background: var(--white); color: var(--ink); font: inherit; font-size: var(--fs-body); letter-spacing: normal; text-transform: none; resize: vertical; }
+.directions-title { margin-bottom: 48px; }
+.directions { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 48px; }
+.directions p { margin-top: 12px; color: var(--stone); }
+
+/* Offer band */
+.offer-band { position: relative; overflow: hidden; background: var(--lake); color: var(--white); }
+.offer-band > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.offer-band-content { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 32px; padding-top: 88px; padding-bottom: 88px; }
+.offer-band-content > div { flex: 1 1 520px; display: flex; flex-direction: column; gap: 12px; }
+.offer-band h2 { font-size: clamp(34px, 3.6vw, 48px); line-height: 1.1; }
+
+/* FAQ */
+.faq { display: flex; flex-direction: column; }
+.faq details { border-bottom: 1px solid var(--field-line); }
+.faq details:first-child { border-top: 1px solid var(--field-line); }
+.faq summary { display: flex; justify-content: space-between; gap: 16px; padding: 20px 0; font-weight: 700; cursor: pointer; list-style: none; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: '+'; color: var(--lake); font-size: 22px; line-height: 1; }
+.faq details[open] summary::after { content: '–'; }
+.faq details p { padding-bottom: 20px; color: var(--stone); }
+
+/* Footer */
+.footer { background: var(--forest-deep); color: var(--footer-text); font-size: var(--fs-small); }
+.footer a { color: var(--footer-text); }
+.footer a:hover { color: var(--white); }
+.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 40px; padding-top: 72px; padding-bottom: 40px; }
+.footer-column { display: flex; flex-direction: column; gap: 8px; }
+.footer-column strong { color: var(--white); }
+.footer-column label { color: var(--white); font-size: var(--fs-small); letter-spacing: normal; text-transform: none; }
+.footer-name { font-family: var(--font-display); font-size: 28px; font-weight: 600; color: var(--white); }
+.newsletter-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.newsletter-row input:not([type]), .newsletter-row input[type='email'] { flex: 1 1 160px; min-height: 44px; border: 0; }
+.newsletter-row .button { min-height: 44px; padding: 0 18px; }
+.footer-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 24px; padding-top: 20px; padding-bottom: 32px; border-top: 1px solid var(--footer-line); font-size: 13px; }
+
+/* Room overview */
+.rooms-layout { display: grid; grid-template-columns: 280px 1fr; gap: 48px; align-items: start; }
+.filters { position: sticky; top: 112px; display: flex; flex-direction: column; gap: 28px; }
+.filters legend { margin-bottom: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); }
+.filters fieldset label.checkbox { margin-bottom: 8px; }
+.filters .text-link { align-self: flex-start; }
+.results-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.results-header p { color: var(--stone); }
+.results-header label { flex-direction: row; align-items: center; gap: 12px; }
+
+/* Room detail */
+.breadcrumbs { margin-bottom: 32px; color: var(--stone); font-size: var(--fs-small); }
+.room-detail { display: flex; flex-wrap: wrap; gap: 64px; margin-bottom: var(--section-y); }
+.room-detail-image { flex: 1 1 520px; min-width: 0; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.room-detail-body { flex: 1 1 420px; display: flex; flex-direction: column; gap: 20px; }
+.room-detail-body > p:not(.lead) { color: var(--stone); }
+.room-detail-body h2 { font-size: 34px; }
+.room-features { display: flex; flex-direction: column; gap: 20px; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 8px 32px; margin: 0; }
+.facts dt { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); padding-top: 4px; }
+.facts dd { margin: 0; }
+.features { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.features li { padding: 4px 12px; border: 1px solid var(--field-line); font-size: var(--fs-small); }
+.features li::first-letter { text-transform: uppercase; }
+.booking-box { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; padding: 28px; background: var(--lake-mist); }
+.booking-box .price { font-size: var(--fs-lead); }
+.other-rooms h2 { margin-bottom: 48px; }
+
+/* Comparison */
+.compare-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.compare-table th, .compare-table td { padding: 14px 16px; border-bottom: 1px solid var(--lake-mist); text-align: left; vertical-align: top; }
+.compare-table thead th { border-bottom: 0; padding-bottom: 24px; }
+.compare-table thead select { width: 100%; margin-bottom: 16px; font-family: var(--font-display); font-size: 24px; font-weight: 600; }
+
+.compare-table thead img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.compare-table tbody th { width: 28%; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); }
+.compare-table .better { color: var(--lake); font-weight: 700; background: var(--lake-mist); }
+.compare-table tbody tr:last-child td, .compare-table tbody tr:last-child th { border-bottom: 0; padding-top: 28px; }
+
+/* Booking */
+.booking-layout { display: grid; grid-template-columns: 1fr 380px; gap: 64px; align-items: start; }
+.booking-form { display: flex; flex-direction: column; gap: 48px; }
+.booking-form legend { font-family: var(--font-display); font-size: 34px; font-weight: 600; line-height: 1.2; margin-bottom: 20px; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+.room-options { display: grid; gap: 12px; margin-top: 12px; }
+.room-option {
+  display: grid;
+  grid-template-columns: auto 96px 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--field-line);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.room-option:hover { border-color: var(--forest); }
+.room-option:has(input:checked) { border-color: var(--lake); box-shadow: inset 0 0 0 1px var(--lake); background: var(--lake-mist); }
+.room-option img { width: 96px; aspect-ratio: 4 / 3; object-fit: cover; }
+.room-option-text { display: flex; flex-direction: column; }
+.room-option-text strong { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.2; }
+.room-option-text span { color: var(--stone); font-size: var(--fs-small); }
+.room-option-price { font-weight: 700; color: var(--lake); }
+.room-option-unavailable { cursor: not-allowed; color: var(--stone); }
+.room-option-unavailable img { opacity: 0.4; }
+.room-option-unavailable:hover { border-color: var(--field-line); }
+.room-option-unavailable .room-option-price { color: var(--stone); font-weight: 400; font-size: var(--fs-small); }
+.booking-summary { position: sticky; top: 112px; display: flex; flex-direction: column; gap: 16px; padding: 28px; background: var(--lake-mist); }
+.booking-summary h2 { font-size: 34px; }
+.booking-summary img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.booking-summary > p strong { font-family: var(--font-display); font-size: 26px; font-weight: 600; }
+.booking-summary .total { font-size: var(--fs-lead); font-weight: 700; color: var(--lake); }
+.booking-summary .button { width: 100%; }
+.confirmation { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; padding: 48px; background: var(--lake-mist); }
+
+/* AI companion: the AI Hub chat in a full-height panel on the right, next to the website */
+.site { transition: margin-right 0.35s ease; }
+.site-with-companion { margin-right: var(--companion-width); }
+.companion {
+  position: fixed; top: 0; right: 0; z-index: 20; display: flex; flex-direction: column;
+  width: var(--companion-width); height: 100dvh; border-left: 1px solid var(--field-line); background: var(--white);
+  transform: translateX(100%); visibility: hidden; transition: transform 0.35s ease, visibility 0s linear 0.35s;
+}
+.companion-open { transform: none; visibility: visible; transition: transform 0.35s ease; }
+/* Continues the header of the website */
+.companion-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: var(--header-height); padding: 12px 16px 12px 24px; background: var(--forest); color: var(--white); }
+.companion-title { font-family: var(--font-display); font-size: 26px; font-weight: 600; letter-spacing: 0.02em; }
+.companion-close { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 0; background: none; color: var(--white); cursor: pointer; }
+.companion-close:hover { color: var(--sand); }
+.companion-chat { flex: 1; min-height: 0; }
+.companion-chat ai-hub-chat { display: block; }
+
+.header-companion { display: flex; align-items: center; padding: 0 var(--gutter) 0 28px; border-left: 1px solid var(--footer-line); }
+/* The switch in the header: a sand track with a square thumb, filled when the companion is on */
+.companion-switch { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--white); font: inherit; font-size: var(--fs-small); font-weight: 600; cursor: pointer; }
+.companion-switch:hover { color: var(--sand); }
+.companion-switch-track { position: relative; width: 38px; height: 22px; border: 1.5px solid var(--sand); transition: background-color 0.2s ease; }
+.companion-switch-thumb { position: absolute; top: 3px; left: 3px; width: 13px; height: 13px; background: var(--sand); transition: transform 0.2s ease, background-color 0.2s ease; }
+.companion-switch[aria-checked='true'] .companion-switch-track { background: var(--sand); }
+.companion-switch[aria-checked='true'] .companion-switch-thumb { transform: translateX(16px); background: var(--forest); }
+/* The lake blue focus ring doesn't stand out on forest green */
+.companion-switch:focus-visible, .companion-close:focus-visible { outline-color: var(--sand); }
+
+@media (prefers-reduced-motion: reduce) {
+  .site, .companion, .companion-switch-track, .companion-switch-thumb { transition: none; }
+  .navigation-progress { display: none; }
+}
+
+@media (max-width: 960px) {
+  .rooms-layout, .booking-layout { grid-template-columns: 1fr; }
+  .filters, .booking-summary { position: static; }
+}
+
+@media (max-width: 720px) {
+  /* The AI companion covers the website on a phone */
+  :root { --gutter: 20px; --section-y: 64px; --header-height: 0px; --companion-width: 100%; }
+  .site-with-companion { margin-right: 0; }
+  .header-companion { flex-basis: 100%; justify-content: flex-end; padding: 4px var(--gutter); border-top: 1px solid var(--footer-line); border-left: 0; }
+  .header { position: relative; }
+  .main-nav { order: 3; width: 100%; margin-left: 0; gap: 8px 20px; }
+  .hero-content { padding-top: 72px; padding-bottom: 120px; }
+  .intro { padding-top: 72px; }
+  .split { gap: 40px; }
+  .split > *, .room-detail-image, .room-detail-body { flex-basis: 100%; }
+  .booking-bar .button { width: 100%; }
+  .room-option { grid-template-columns: auto 1fr auto; }
+  .room-option img { display: none; }
+  .compare-table th, .compare-table td { padding: 10px 8px; }
+  .compare-table thead select { font-size: 18px; }
+  .confirmation { padding: 28px; }
+}
