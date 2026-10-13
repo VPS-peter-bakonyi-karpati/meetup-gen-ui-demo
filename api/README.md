@@ -14,6 +14,7 @@ REST API of the fictional Hotel Seeblick, used by the chat demos (`../chat/`) an
 | `GET /api/hotel` | The details of the hotel: name, address, contact, check-in and check-out times |
 | `GET /api/hotel/rooms?guests=` | All rooms, or the rooms that fit the guests |
 | `GET /api/hotel/availability?checkIn=&checkOut=&guests=` | The rooms that are free for the stay, with `nights` and `totalPrice` |
+| `GET /api/hotel/occupancy?from=&to=` | The booked stays of all rooms in the period (`roomId`, `checkIn`, `checkOut`, no guest names), at most 366 days |
 | `GET /api/hotel/bookings?guestName=` | The bookings under the name |
 | `POST /api/hotel/bookings` | Books a room: `{ roomId, guestName, guests, checkIn, checkOut }` |
 | `DELETE /api/hotel/bookings/<id>?guestName=` | Cancels a booking; the name must match the booking |

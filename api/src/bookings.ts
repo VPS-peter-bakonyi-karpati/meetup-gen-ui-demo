@@ -1,5 +1,12 @@
 // Booking logic of the hotel: availability, booking and cancelling. Errors are thrown with a message for the guest.
-import { countOverlappingBookings, deleteBooking, insertBooking, selectBookingsByGuest, type BookingRow } from "./db.ts";
+import {
+    countOverlappingBookings,
+    deleteBooking,
+    insertBooking,
+    selectBookingsByGuest,
+    selectOverlappingBookings,
+    type BookingRow,
+} from "./db.ts";
 import { findRoom, rooms } from "./rooms.ts";
 
 export interface Booking {
@@ -59,6 +66,28 @@ export function searchRooms({ checkIn, checkOut, guests }: Stay) {
     return rooms
         .filter((room) => room.maxGuests >= guests && isAvailable(room.id, checkIn, checkOut))
         .map((room) => ({ ...room, nights, totalPrice: nights * room.pricePerNight }));
+}
+
+/** A booked stay of a room, without the guest, so everyone can see when the rooms are taken */
+export interface Occupancy {
+    roomId: string;
+    checkIn: string;
+    checkOut: string;
+}
+
+// A year is enough for the calendar and keeps the answer small
+const maxOccupancyDays = 366;
+
+/** The booked stays of all rooms that overlap the period from `from` to `to` (exclusive) */
+export function listOccupancy({ from, to }: { from: string; to: string }): Occupancy[] {
+    if (Number.isNaN(Date.parse(from)) || Number.isNaN(Date.parse(to))) {
+        throw new Error("Dates must be in the format YYYY-MM-DD.");
+    }
+    const days = nightsBetween(from, to);
+    if (days < 1 || days > maxOccupancyDays) {
+        throw new Error(`The period must be between 1 and ${maxOccupancyDays} days long.`);
+    }
+    return selectOverlappingBookings(from, to).map((row) => ({ roomId: row.room_id, checkIn: row.check_in, checkOut: row.check_out }));
 }
 
 export function createBooking({ roomId, guestName, guests, checkIn, checkOut }: Stay & { roomId: string; guestName: string }) {

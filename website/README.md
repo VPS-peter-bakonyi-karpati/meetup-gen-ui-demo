@@ -12,10 +12,11 @@ The design tokens are in `src/index.css`, and the motifs (wave, mountains, page 
 | `/rooms` | Room overview with filters for type, guests, view, price and features |
 | `/rooms/:roomId` | Detail page of a room |
 | `/compare?a=&b=` | Comparison of two rooms |
+| `/calendar?month=&room=` | Availability calendar of a month, for all rooms or the chosen ones; a free day links to the booking |
 | `/booking?room=&checkIn=&checkOut=&guests=` | Booking with live availability |
 | `/contact` | Contact details, contact form and directions |
 
-The filters, the compared rooms and the booking form (apart from the name) are kept in the URL, so every state of a page can be linked to.
+The filters, the compared rooms, the calendar month and rooms, and the booking form (apart from the name) are kept in the URL, so every state of a page can be linked to.
 
 The hotel's details and its rooms come from the hotel API (`api/`): the root route loads them once before the first page is shown (`src/content/content.ts`), and the pages read them with `useHotel()` and `useRooms()`. The room photos also come from the API.
 
@@ -28,7 +29,7 @@ npm run dev            # http://localhost:3000
 
 The website needs the hotel API (`api/`), which the dev server forwards from `/api` and `/room-images` to `http://localhost:4112`. Start it with `npm run dev` in `api/` first; without it, the website shows an error page. The website and the chat demos share the bookings.
 
-The dev server always runs on port 3000 (`strictPort`). A public AI Hub API key only accepts requests from the domains on its allowed domains, and those include the port, so `localhost:3000` must be on the allowed domains of the API key the website uses.
+The dev server runs on port 3000 (`strictPort`). For a second copy, e.g. in a git worktree, set `PORT` and `HOTEL_API_URL` (for example `PORT=3100 HOTEL_API_URL=http://localhost:4212 npm run dev`); the AI Hub chat doesn't work on other ports. A public AI Hub API key only accepts requests from the domains on its allowed domains, and those include the port, so `localhost:3000` must be on the allowed domains of the API key the website uses.
 
 ## AI Hub chat
 
@@ -47,7 +48,7 @@ Without an API key, the chat is not shown.
 
 The chat uses the `bridge` of the web component (beta, see `../ai-hub-context-and-tools.md`), connected in `src/aiHub/AiHubChat.tsx`:
 
-- **Context** (`src/aiHub/bridge.ts`): every page calls `useAiHubContext` with what it shows, e.g. the filters and the shown rooms, or the booking form and the availability. The context also has the URL and today's date.
+- **Context** (`src/aiHub/bridge.ts`): every page calls `useAiHubContext` with what it shows, e.g. the filters and the shown rooms, the free rooms per night of the calendar, or the booking form and the availability. The context also has the URL and today's date.
 - **Tools** (`src/aiHub/hostTools.ts`): `navigateTo`, `filterRooms`, `compareRooms`, `fillBookingForm` and `fillContactForm` run without asking. `submitBooking` and `sendContactMessage` change something, so the guest approves them in the chat.
 - **Page actions**: the guest name and the contact form are React state, not URL parameters. The pages register actions with `useAiHubAction`, which the tools call with `runPageAction`.
 

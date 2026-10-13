@@ -47,6 +47,7 @@ export function Layout() {
             <nav aria-label="Main" className="main-nav">
               <NavLink to="/rooms">Rooms</NavLink>
               <NavLink to="/compare">Compare</NavLink>
+              <NavLink to="/calendar">Availability</NavLink>
               <NavLink to="/contact">Contact</NavLink>
             </nav>
             <Link className="button button-brass" to="/booking">
@@ -115,6 +116,7 @@ function Footer() {
           <strong>Hotel</strong>
           <Link to="/rooms">Rooms</Link>
           <Link to="/compare">Compare rooms</Link>
+          <Link to="/calendar">Availability calendar</Link>
           <Link to="/booking">Book a stay</Link>
           <Link to="/contact">Contact &amp; directions</Link>
         </nav>

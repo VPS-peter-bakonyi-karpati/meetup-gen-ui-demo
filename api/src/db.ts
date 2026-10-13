@@ -36,6 +36,7 @@ const statements = {
     insert: db.prepare("INSERT INTO bookings (room_id, guest_name, guests, check_in, check_out) VALUES (?, ?, ?, ?, ?) RETURNING *"),
     // The guest isn't logged in, so the name on the booking is what identifies them
     selectByGuest: db.prepare("SELECT * FROM bookings WHERE lower(guest_name) = lower(?) ORDER BY check_in"),
+    selectOverlapping: db.prepare("SELECT * FROM bookings WHERE check_in < ? AND check_out > ? ORDER BY room_id, check_in"),
     deleteByIdAndGuest: db.prepare("DELETE FROM bookings WHERE id = ? AND lower(guest_name) = lower(?)"),
 };
 
@@ -46,6 +47,10 @@ export const insertBooking = (row: Omit<BookingRow, "id" | "created_at">) =>
     statements.insert.get(row.room_id, row.guest_name, row.guests, row.check_in, row.check_out) as unknown as BookingRow;
 
 export const selectBookingsByGuest = (guestName: string) => statements.selectByGuest.all(guestName) as unknown as BookingRow[];
+
+/** The bookings of all rooms that overlap the period from `from` to `to` (exclusive) */
+export const selectOverlappingBookings = (from: string, to: string) =>
+    statements.selectOverlapping.all(to, from) as unknown as BookingRow[];
 
 /** Returns whether a booking was deleted */
 export const deleteBooking = (id: number, guestName: string) => statements.deleteByIdAndGuest.run(id, guestName).changes > 0;
