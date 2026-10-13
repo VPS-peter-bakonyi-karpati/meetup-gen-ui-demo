@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
+import { useAiHubContext } from '../aiHub/bridge.ts'
 import { PageHeader } from '../components/brand.tsx'
 import { Seo } from '../components/Seo.tsx'
 import { useRooms } from '../content/content.ts'
@@ -46,6 +47,17 @@ export function CalendarPage() {
   const [result, setResult] = useState<OccupancyResult>()
   const occupancy = result?.month === month && 'occupancy' in result ? result.occupancy : undefined
   const error = result?.month === month && 'error' in result ? result.error : undefined
+
+  // The free rooms of every night of the month that hasn't passed yet
+  const monthDays = days.filter((day) => day.startsWith(month) && day >= firstDay)
+  useAiHubContext({
+    page: 'Availability calendar',
+    month,
+    chosenRooms: roomIds.length > 0 ? selectedRooms.map((room) => room.name) : 'all rooms',
+    freeRoomsPerNight: occupancy
+      ? Object.fromEntries(monthDays.map((day) => [day, selectedRooms.filter((room) => !isBooked(occupancy, room.id, day)).map((room) => room.name)]))
+      : (error ?? 'loading'),
+  })
 
   useEffect(() => {
     let ignore = false

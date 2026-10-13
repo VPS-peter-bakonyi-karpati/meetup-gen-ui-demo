@@ -5,7 +5,7 @@ import { contactTopics } from '../content/content.ts'
 import { allFeatures, roomTypes, roomViews, type Room, type RoomFilters } from '../content/rooms.ts'
 import { contextAfterChange, runPageAction, type HostTool } from './bridge.ts'
 
-const pages = ['/', '/rooms', '/rooms/<roomId>', '/compare', '/booking', '/contact']
+const pages = ['/', '/rooms', '/rooms/<roomId>', '/compare', '/calendar', '/booking', '/contact']
 
 const isoDate = { type: 'string', description: 'Date in the format YYYY-MM-DD' }
 
@@ -16,7 +16,7 @@ export function createHostTools({ navigate, rooms }: { navigate: NavigateFunctio
   return [
     {
       name: 'navigateTo',
-      description: `Opens a page of the website: ${pages.join(', ')}. Room ids: ${roomList}. Returns what the page shows.`,
+      description: `Opens a page of the website: ${pages.join(', ')}. Room ids: ${roomList}. The availability calendar takes /calendar?month=YYYY-MM&room=<roomId>&room=<roomId> (without rooms, it shows all rooms). Returns what the page shows.`,
       inputSchema: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
       readOnlyHint: true,
       handler: async ({ path }: { path: string }) => {
