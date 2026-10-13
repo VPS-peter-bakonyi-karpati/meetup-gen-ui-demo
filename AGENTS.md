@@ -30,10 +30,19 @@ Node.js 24 or later. `./install.sh` installs all three apps. There is no test su
 
 ## Website and AI Hub
 
-- The website connects the AI Hub chat in `website/src/aiHub/` (see "Context and tools" in `website/README.md`). The bridge API is described in `ai-hub-context-and-tools.md`.
-- A new page must call `useAiHubContext`, or the agent keeps the context of the previous page.
-- State that is not in the URL (form fields) needs a page action (`useAiHubAction`) before a tool can change it.
-- Tools that change something outside the page (booking, sending a message) must not have `readOnlyHint`, so the guest approves them.
+The website connects the AI Hub chat in `website/src/aiHub/` (the solution of Step 3, see `README.md`). The bridge API of the web component is described in `ai-hub-context-and-tools.md`.
+
+| File | Role |
+| --- | --- |
+| `AiHubChat.tsx` | Creates the `<ai-hub-chat>` element and calls `connectBridge` with its `bridge` and the tools |
+| `bridge.ts` | Context (`useAiHubContext`), page actions (`useAiHubAction`, `runPageAction`) and `contextAfterChange` |
+| `hostTools.ts` | The tools, created with `navigate` and the rooms |
+| `config.ts` | API key and widget id from `.env.local` |
+
+- **New page:** call `useAiHubContext` with what the page shows. Otherwise the agent keeps the context of the previous page.
+- **New tool:** add it to `createHostTools`. Return `contextAfterChange()` when the tool changes the page, so the agent sees the result in the same answer. Throw errors that tell the agent how to fix the call.
+- **Form state:** state that is not in the URL (the booking name, the contact form) needs a page action (`useAiHubAction`) before a tool can change it.
+- **Approval:** tools that change something outside the page (booking, sending a message) must not have `readOnlyHint`, so the guest approves them in the chat. Say so in the tool description, or the agent asks for confirmation itself and doesn't call the tool.
 - The web component is loaded from the AI Hub staging deployment. It needs `VITE_AI_HUB_API_KEY` in `website/.env.local`, with `localhost:3000` on the key's allowed domains.
 
 ## Code style
@@ -42,9 +51,10 @@ Node.js 24 or later. `./install.sh` installs all three apps. There is no test su
 - Relative imports with the file extension (`./hotel.ts`).
 - Comments explain why, in short, plain English sentences. User-facing texts of the hotel are English; room names are German.
 
-## Testing the demos
+## Testing
 
 - Test in a browser with the example scenarios in `README.md`. Most problems only show with the real model: repeated tool calls, missing details, wrong parameters.
+- AI Hub: switch on the "AI companion" in the header of the website, then ask for an action, e.g. "Show me rooms with a lake view". The chat is in a shadow root; in the browser console, `document.querySelector('ai-hub-chat').bridge` is the bridge. Approve tool calls with the "Approve" button in the chat.
 - Bookings go into the shared API database. Use a test guest name and cancel the test bookings afterward: `curl -X DELETE "http://localhost:4112/api/hotel/bookings/<id>?guestName=<name>"`.
 
 ## Known pitfalls
@@ -56,5 +66,4 @@ Node.js 24 or later. `./install.sh` installs all three apps. There is no test su
 - Open generative UI: the model sometimes calls `generateSandboxedUi` in the same step as the data tool, before it has the data. The prompt tells it to wait for the tool results.
 - MCP Apps: models send empty strings for optional tool parameters. Treat empty values as missing.
 - MCP Apps: register `app.ontoolresult` before `await app.connect()`, or the first result can be lost.
-- AI Hub: the agent keeps the tools and the context of the start of its answer, so a tool that changes the page must return the new context (`contextAfterChange` in `website/src/aiHub/bridge.ts`).
 - AI Hub: the agent can't list its tools when asked, but it uses them. Test a tool by asking for its action, not by asking the agent about it.

@@ -116,7 +116,7 @@ Some prompts you might want to try in each approach:
 
 ### Solution
 
-The `solution` branch implements all four approaches, the bonus and the side quest. Each of them is in its own commit. `main` keeps the skeletons for the participants.
+The `solution` branch implements all four approaches and the bonus, and also the side quest (see the solution of Step 3). Each of them is in its own commit. `main` keeps the skeletons for the participants.
 
 | Approach | Implementation | What we learned |
 | --- | --- | --- |
@@ -132,14 +132,6 @@ The `solution` branch implements all four approaches, the bonus and the side que
 - Fully open: the agent only follows the CI when it is told to, so `designSkill` gives it the rules and a base stylesheet. This is the only approach where the CI depends on the model.
 - MCP Apps: the server puts the brand CSS into the app HTML.
 
-**Side quest (Step 3):** the AI Hub chat on the website gets the context of the page and seven tools, see "Context and tools" in `website/README.md`. What we learned:
-
-- The agent keeps the tools and the context of the start of its answer. So every tool that changes the page returns the new context, and the agent can continue with it in the same answer.
-- Every page sends its own context, including the forms the guest is filling in. A page without context would leave the context of the previous page.
-- Tools without `readOnlyHint` (`submitBooking`, `sendContactMessage`) show an approval in the chat. The agent didn't call them until the tool description said that the chat asks for approval itself.
-- The context has today's date, so the agent understands "this Friday".
-- The `Book now` button of the booking page did nothing, as the form had no `id`. This is fixed in its own commit.
-
 ## Step 3: Side quest – let the Dextinity AI Hub control the website
 
 The website embeds our [Dextinity AI Hub](https://www.dextinity.com/de) chat, but the chat knows nothing about the website. Change that with the beta client tools and context, see [ai-hub-context-and-tools.md](ai-hub-context-and-tools.md). Start in `website/src/aiHub/AiHubChat.tsx`.
@@ -148,3 +140,54 @@ The website embeds our [Dextinity AI Hub](https://www.dextinity.com/de) chat, bu
 2. Give the agent tools to use the website (some ideas: navigate, filter rooms, fill in forms, ...)
 3. Pass context about what the user sees right now
 4. Play around: how far can the agent drive the website?
+
+### Solution
+
+The `solution` branch connects the chat in `website/src/aiHub/`:
+
+- `AiHubChat.tsx` waits until the web component is defined, then passes its `bridge` and the tools to `connectBridge` (`bridge.ts`).
+- `bridge.ts` holds the context and the page actions. The bridge keeps the latest tools and context and passes them to the chat when it is ready, so the order doesn't matter.
+- `hostTools.ts` defines the tools. Most of them change the URL with React Router, as the website keeps its filters and the booking form in the URL.
+
+**Context:** every page calls `useAiHubContext` with what it shows. The website adds the URL and today's date, so the agent understands "this Friday".
+
+| Page | Context |
+| --- | --- |
+| `/` | Amenities, featured rooms, the FAQ (check-in times, breakfast, parking, children and pets), how to get there |
+| `/rooms` | The filters and the rooms they show |
+| `/rooms/:roomId` | The room with its description |
+| `/compare` | The two compared rooms |
+| `/booking` | The form (room, dates, guests, name), which rooms are available with their total price, and the booking once it is confirmed |
+| `/contact` | Phone, email, reception hours, directions, and the contact form |
+
+**Tools:**
+
+| Tool | What it does | Approval |
+| --- | --- | --- |
+| `navigateTo` | Opens a page | – |
+| `filterRooms` | Sets the filters of the room overview | – |
+| `compareRooms` | Opens the comparison of two rooms | – |
+| `fillBookingForm` | Fills in the booking form, including the name | – |
+| `submitBooking` | Books, as if the guest clicked "Book now" | Guest approves in the chat |
+| `fillContactForm` | Fills in the contact form | – |
+| `sendContactMessage` | Sends the contact form | Guest approves in the chat |
+
+The guest name and the contact form are React state, not URL parameters. So the pages register actions with `useAiHubAction`, and the tools call them with `runPageAction`.
+
+**Prompts to try** (switch on the AI companion first):
+
+- "Which page am I on, and is breakfast included?"
+- "Show me rooms with a lake view for 2 people, cheapest first"
+- "Compare the two suites for me"
+- "Please book the Seezimmer from this Friday to Sunday for 2 guests, my name is …"
+- "Send the hotel a message that I'd like a table for 2 in the restaurant on Friday at 7 pm"
+
+**What we learned:**
+
+- The agent keeps the tools and the context of the start of its answer. So every tool that changes the page returns the new context (`contextAfterChange`), and the agent can continue with it in the same answer.
+- Every page has to send its context, including the forms the guest is filling in. Otherwise the agent keeps the context of the previous page.
+- The context is what the guest sees, nothing more. On the rooms page, the agent doesn't know whether breakfast is included, as only the homepage shows that.
+- Tools without `readOnlyHint` (`submitBooking`, `sendContactMessage`) show "Run tool …?" with Approve and Reject in the chat. The agent didn't call them until their descriptions said that the chat asks the guest for approval itself.
+- A tool error goes to the agent as `failed: <message>`, so the errors say what to do, e.g. "Fill in the guest name with fillBookingForm first."
+- The agent can't list its tools when asked, but it uses them.
+- The "Book now" button of the booking page did nothing, as the form had no `id`. The fix is also in a separate pull request for `main`.
