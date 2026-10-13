@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardActions, CardContent, CardMedia, Chip, Skeleton, Stack, Typography } from '@mui/material'
 import { useSendMessage } from '../../shared/useSendMessage.ts'
 import type { Room, Streaming } from '../schemas.ts'
-import { capitalize, formatPrice } from './format.ts'
+import { capitalize, formatPrice } from '../../shared/format.ts'
 
 interface RoomCardsProps {
   title: string

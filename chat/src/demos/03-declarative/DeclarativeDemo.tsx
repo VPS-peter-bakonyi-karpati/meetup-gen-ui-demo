@@ -1,11 +1,9 @@
 import { DemoChat } from '../shared/DemoChat.tsx'
-import { NotImplementedAlert } from '../shared/NotImplementedAlert.tsx'
 
 // Declarative generative UI (A2UI): the agent composes a UI from a catalog of building blocks.
-// TODO: create a catalog with `createCatalog` from `@copilotkit/a2ui-renderer` and register it
-// in `src/demos/index.ts` via `providerProps: { a2ui: { catalog } }`.
+// The catalog is in `catalog.ts` and registered in `src/demos/index.ts` via `providerProps: { a2ui: { catalog } }`.
+// Buttons in the generated UI send their action to the agent, so nothing else is needed here.
 
 export function DeclarativeDemo() {
-  // TODO: remove the alert once the demo is implemented
-  return <DemoChat header={<NotImplementedAlert />} />
+  return <DemoChat />
 }

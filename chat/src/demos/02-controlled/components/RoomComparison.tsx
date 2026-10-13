@@ -1,7 +1,7 @@
 import { Box, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import type { ReactNode } from 'react'
 import type { Room, Streaming } from '../schemas.ts'
-import { capitalize, formatPrice } from './format.ts'
+import { capitalize, formatPrice } from '../../shared/format.ts'
 
 interface RoomComparisonProps {
   title: string

@@ -3,6 +3,7 @@ import type { ComponentType } from 'react'
 import { BasicChatDemo } from './01-basic-chat/BasicChatDemo.tsx'
 import { ControlledDemo } from './02-controlled/ControlledDemo.tsx'
 import { DeclarativeDemo } from './03-declarative/DeclarativeDemo.tsx'
+import { catalog } from './03-declarative/catalog.ts'
 import { OpenGenerativeUIDemo } from './04-open-generative-ui/OpenGenerativeUIDemo.tsx'
 import { McpAppsDemo } from './05-mcp-apps/McpAppsDemo.tsx'
 
@@ -35,6 +36,7 @@ export const demos: Demo[] = [
     title: 'Declarative (A2UI)',
     description: 'Agent composes a UI from a catalog of building blocks.',
     component: DeclarativeDemo,
+    providerProps: { a2ui: { catalog } },
   },
   {
     id: 'open-generative-ui',

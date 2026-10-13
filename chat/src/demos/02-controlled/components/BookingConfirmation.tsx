@@ -1,7 +1,7 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { Card, CardContent, Stack, Typography } from '@mui/material'
 import type { Booking, Streaming } from '../schemas.ts'
-import { formatDate, formatPrice } from './format.ts'
+import { formatDate, formatPrice } from '../../shared/format.ts'
 
 export function BookingConfirmation({ booking = {} }: Streaming<{ booking: Booking }>) {
   const { id, roomName, guestName, guests, checkIn, checkOut, nights, totalPrice } = booking

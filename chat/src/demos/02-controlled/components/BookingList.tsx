@@ -1,7 +1,7 @@
 import { Box, Button, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { useSendMessage } from '../../shared/useSendMessage.ts'
 import type { Booking, Streaming } from '../schemas.ts'
-import { formatDate, formatPrice } from './format.ts'
+import { formatDate, formatPrice } from '../../shared/format.ts'
 
 export function BookingList({ guestName, bookings = [] }: Streaming<{ guestName: string; bookings: Booking[] }>) {
   const sendMessage = useSendMessage()
