@@ -13,7 +13,7 @@ interface DemoChatProps {
   placeholder?: string
   /** Prompts shown as suggestion pills before the first message */
   suggestions?: string[]
-  /** Shown above the chat, e.g. a `NotImplementedAlert` */
+  /** Shown above the chat, e.g. an alert */
   header?: ReactNode
 }
 

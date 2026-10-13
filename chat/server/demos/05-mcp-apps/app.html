@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hotel Seeblick</title>
+  <!-- The MCP App of the hotel MCP server (`mcpServer.ts`). It shows the result of `show_rooms` or
+       `show_bookings`, and books or cancels with the app-only tools. `{{ASSET_BASE_URL}}` is replaced by the server. -->
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 4px; font: 14px/1.4 system-ui, sans-serif; color: #1e2422; background: transparent; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    button { font: inherit; font-weight: 600; padding: 8px 14px; border: 1px solid #1e2422; background: #fff; color: #1e2422; cursor: pointer; }
+    button.primary { background: #1e2422; color: #fff; }
+    button:disabled { opacity: 0.5; cursor: default; }
+    input { font: inherit; padding: 7px 8px; border: 1px solid #b9c2be; width: 100%; }
+    label { display: grid; gap: 2px; font-size: 12px; color: #4a5551; }
+    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .card { display: flex; flex-direction: column; border: 1px solid #b9c2be; background: #fff; }
+    .card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+    .body { display: grid; gap: 8px; padding: 12px; flex-grow: 1; align-content: start; }
+    .meta { font-size: 12px; color: #4a5551; }
+    .name { font-size: 16px; font-weight: 700; }
+    .price { font-weight: 700; }
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .chip { font-size: 12px; padding: 2px 8px; border: 1px solid #b9c2be; }
+    .actions { padding: 0 12px 12px; }
+    form { display: grid; gap: 8px; }
+    .row { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
+    .error { color: #a12d2d; }
+    .success { font-weight: 700; }
+    .list { display: grid; gap: 8px; }
+    .booking { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid #b9c2be; background: #fff; }
+    .empty { color: #4a5551; }
+  </style>
+</head>
+<body>
+  <main id="root"><p class="empty">Loading…</p></main>
+  <script type="module">
+    import { App } from "{{ASSET_BASE_URL}}/mcp-assets/ext-apps.js";
+
+    const app = new App({ name: "Hotel Seeblick", version: "1.0.0" });
+    const root = document.getElementById("root");
+
+    const escape = (value) =>
+      String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+    const euro = new Intl.NumberFormat("en-GB", { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
+    const day = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short" });
+    const formatDate = (date) => day.format(new Date(`${date}T00:00:00`));
+    const plural = (count, word) => `${count} ${word}${count === 1 ? "" : "s"}`;
+
+    /** Calls an app-only tool of the MCP server; throws its error message */
+    async function callTool(name, args) {
+      const result = await app.callServerTool({ name, arguments: args });
+      if (result.isError) {
+        throw new Error(result.content?.map((item) => item.text).join(" ") || "Something went wrong.");
+      }
+      return result.structuredContent;
+    }
+
+    /** Tells the agent what the guest did in the app, as a message from the guest */
+    const tellAgent = (text) => app.sendMessage({ role: "user", content: [{ type: "text", text }] });
+
+    // Rooms
+
+    function renderRooms({ rooms, stay }) {
+      if (rooms.length === 0) {
+        root.innerHTML = `<p class="empty">No rooms are available${stay ? " for these dates" : ""}.</p>`;
+        return;
+      }
+      root.innerHTML = `
+        <h2>${stay ? `${formatDate(stay.checkIn)} – ${formatDate(stay.checkOut)} · ${plural(stay.guests, "guest")}` : "Our rooms"}</h2>
+        <div class="grid">${rooms.map((room) => roomCard(room, stay)).join("")}</div>`;
+      root.querySelectorAll("[data-book]").forEach((button) => {
+        const room = rooms.find(({ id }) => id === button.dataset.book);
+        button.addEventListener("click", () => showBookingForm(button.closest(".card"), room, stay));
+      });
+    }
+
+    function roomCard(room, stay) {
+      const price = stay ? `${euro.format(room.totalPrice)} for ${plural(room.nights, "night")}` : `${euro.format(room.pricePerNight)} per night`;
+      return `
+        <article class="card">
+          <img src="${escape(room.imageUrl)}" alt="${escape(room.name)}" />
+          <div class="body">
+            <div class="meta">${escape(room.view)} view · up to ${plural(room.maxGuests, "guest")}</div>
+            <div class="name">${escape(room.name)}</div>
+            <div>${escape(room.description)}</div>
+            <div class="chips">${room.features.map((feature) => `<span class="chip">${escape(feature)}</span>`).join("")}</div>
+            <div class="price">${price}</div>
+          </div>
+          <div class="actions"><button class="primary" data-book="${escape(room.id)}">Book</button></div>
+        </article>`;
+    }
+
+    function showBookingForm(card, room, stay) {
+      const actions = card.querySelector(".actions");
+      // Without a stay from the agent, the guest enters the dates and number of guests here
+      actions.innerHTML = `
+        <form>
+          ${stay ? "" : `
+            <div class="row">
+              <label>Check-in<input name="checkIn" type="date" required /></label>
+              <label>Check-out<input name="checkOut" type="date" required /></label>
+            </div>
+            <label>Guests<input name="guests" type="number" min="1" max="${room.maxGuests}" value="1" required /></label>`}
+          <label>Name<input name="guestName" required autocomplete="name" /></label>
+          <button class="primary" type="submit">Book ${escape(room.name)}</button>
+          <div class="error" role="alert"></div>
+        </form>`;
+      const form = actions.querySelector("form");
+      form.querySelector("input").focus();
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const values = Object.fromEntries(new FormData(form));
+        const input = { ...(stay ?? { checkIn: values.checkIn, checkOut: values.checkOut, guests: Number(values.guests) }), roomId: room.id, guestName: values.guestName.trim() };
+        form.querySelector("button").disabled = true;
+        try {
+          const { booking } = await callTool("book_room_from_app", input);
+          actions.innerHTML = `<p class="success">Booked! Booking #${booking.id}, ${euro.format(booking.totalPrice)} in total.</p>`;
+          void tellAgent(`I booked the ${booking.roomName} in the app: booking #${booking.id} from ${booking.checkIn} to ${booking.checkOut} for ${plural(booking.guests, "guest")}, under the name ${booking.guestName}.`);
+        } catch (error) {
+          form.querySelector(".error").textContent = error.message;
+          form.querySelector("button").disabled = false;
+        }
+      });
+    }
+
+    // Bookings
+
+    function renderBookings({ guestName, bookings }) {
+      if (bookings.length === 0) {
+        root.innerHTML = `<p class="empty">There are no bookings under the name ${escape(guestName)}.</p>`;
+        return;
+      }
+      root.innerHTML = `
+        <h2>Bookings of ${escape(guestName)}</h2>
+        <div class="list">${bookings.map((booking) => `
+          <div class="booking">
+            <div>
+              <div class="name">#${booking.id} · ${escape(booking.roomName)}</div>
+              <div class="meta">${formatDate(booking.checkIn)} – ${formatDate(booking.checkOut)} · ${plural(booking.guests, "guest")} · ${euro.format(booking.totalPrice)}</div>
+              <div class="error" role="alert"></div>
+            </div>
+            <button data-cancel="${booking.id}">Cancel</button>
+          </div>`).join("")}
+        </div>`;
+      root.querySelectorAll("[data-cancel]").forEach((button) => {
+        const booking = bookings.find(({ id }) => String(id) === button.dataset.cancel);
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          try {
+            await callTool("cancel_booking_from_app", { bookingId: booking.id, guestName: booking.guestName });
+            button.replaceWith(Object.assign(document.createElement("span"), { className: "meta", textContent: "Cancelled" }));
+            void tellAgent(`I cancelled booking #${booking.id} (${booking.roomName}) in the app.`);
+          } catch (error) {
+            button.closest(".booking").querySelector(".error").textContent = error.message;
+            button.disabled = false;
+          }
+        });
+      });
+    }
+
+    // Register the handlers before connecting, so the tool result isn't missed
+    app.ontoolresult = (result) => {
+      const data = result.structuredContent;
+      if (result.isError || !data) {
+        root.innerHTML = `<p class="error">${escape(result.content?.map((item) => item.text).join(" ") || "Something went wrong.")}</p>`;
+      } else if (data.view === "bookings") {
+        renderBookings(data);
+      } else {
+        renderRooms(data);
+      }
+    };
+
+    await app.connect();
+  </script>
+</body>
+</html>

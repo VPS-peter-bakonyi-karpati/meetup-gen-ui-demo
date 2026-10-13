@@ -28,6 +28,8 @@ const query = (params: Record<string, string | number>) =>
 
 export const searchRooms = (stay: Stay) => hotelApi<object[]>(`/availability?${query(stay)}`);
 
+export const listRooms = (guests?: number) => hotelApi<object[]>(guests === undefined ? "/rooms" : `/rooms?${query({ guests })}`);
+
 export const createBooking = (input: Stay & { roomId: string; guestName: string }) =>
     hotelApi<object>("/bookings", {
         method: "POST",
@@ -35,10 +37,15 @@ export const createBooking = (input: Stay & { roomId: string; guestName: string 
         body: JSON.stringify(input),
     });
 
+export const listBookings = (guestName: string) => hotelApi<object[]>(`/bookings?${query({ guestName })}`);
+
+export const cancelBooking = ({ bookingId, guestName }: { bookingId: number; guestName: string }) =>
+    hotelApi<object>(`/bookings/${bookingId}?${query({ guestName })}`, { method: "DELETE" });
+
 // Tells the model about groups that are too large for any single room, instead of letting
 // it read an empty result as "nothing available".
 async function tooLargeForOneRoom(guests: number) {
-    const rooms = await hotelApi<object[]>(`/rooms?${query({ guests })}`);
+    const rooms = await listRooms(guests);
     if (rooms.length > 0) {
         return undefined;
     }
@@ -70,7 +77,7 @@ export const hotelTools = {
         parameters: z.object({ guests: z.number().int().min(1).optional() }),
         execute: safely(async ({ guests }: { guests?: number }) => {
             const note = guests === undefined ? undefined : await tooLargeForOneRoom(guests);
-            const rooms = await hotelApi<object[]>(guests === undefined || note ? "/rooms" : `/rooms?${query({ guests })}`);
+            const rooms = await listRooms(note ? undefined : guests);
             return note ? { rooms, note } : { rooms };
         }),
     }),
@@ -94,14 +101,12 @@ export const hotelTools = {
         name: "list_bookings",
         description: "Lists the bookings made under the given guest name.",
         parameters: z.object({ guestName: z.string() }),
-        execute: safely(({ guestName }: { guestName: string }) => hotelApi(`/bookings?${query({ guestName })}`)),
+        execute: safely(({ guestName }: { guestName: string }) => listBookings(guestName)),
     }),
     cancelBooking: defineTool({
         name: "cancel_booking",
         description: "Cancels a booking. The guest name must match the name on the booking.",
         parameters: z.object({ bookingId: z.number().int(), guestName: z.string() }),
-        execute: safely(({ bookingId, guestName }: { bookingId: number; guestName: string }) =>
-            hotelApi(`/bookings/${bookingId}?${query({ guestName })}`, { method: "DELETE" }),
-        ),
+        execute: safely(cancelBooking),
     }),
 };
