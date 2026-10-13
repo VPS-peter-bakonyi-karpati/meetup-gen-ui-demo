@@ -5,6 +5,7 @@ import { ControlledDemo } from './02-controlled/ControlledDemo.tsx'
 import { DeclarativeDemo } from './03-declarative/DeclarativeDemo.tsx'
 import { catalog } from './03-declarative/catalog.ts'
 import { OpenGenerativeUIDemo } from './04-open-generative-ui/OpenGenerativeUIDemo.tsx'
+import { designSkill } from './04-open-generative-ui/designSkill.ts'
 import { sandboxFunctions } from './04-open-generative-ui/sandboxFunctions.ts'
 import { McpAppsDemo } from './05-mcp-apps/McpAppsDemo.tsx'
 
@@ -44,7 +45,7 @@ export const demos: Demo[] = [
     title: 'Fully open',
     description: 'Agent writes HTML/CSS/JS, rendered in a sandbox.',
     component: OpenGenerativeUIDemo,
-    providerProps: { openGenerativeUI: { sandboxFunctions } },
+    providerProps: { openGenerativeUI: { sandboxFunctions, designSkill } },
   },
   {
     id: 'mcp-apps',

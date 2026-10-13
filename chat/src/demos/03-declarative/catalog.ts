@@ -1,4 +1,6 @@
+import { Catalog } from '@a2ui/web_core/v0_9'
 import { createCatalog, type CatalogRenderers } from '@copilotkit/a2ui-renderer'
+import { brandedBasics } from './brandedBasics.tsx'
 import { BarChart, BookingSummary, FeatureList, PriceTag, RoomCard } from './components.tsx'
 import { definitions, type Definitions } from './definitions.ts'
 
@@ -12,4 +14,11 @@ const catalogId = 'seeblick://catalog'
 // (which includes the `{ path }` bindings), so the types need a cast.
 const renderers = { RoomCard, PriceTag, FeatureList, BookingSummary, BarChart } as unknown as CatalogRenderers<Definitions>
 
-export const catalog = createCatalog(definitions, renderers, { catalogId, includeBasicCatalog: true })
+const hotelCatalog = createCatalog(definitions, renderers, { catalogId, includeBasicCatalog: true })
+
+// The branded basic components replace the ones with the same name (the catalog keeps the last one per name)
+export const catalog = new Catalog(
+  catalogId,
+  [...hotelCatalog.components.values(), ...brandedBasics],
+  [...hotelCatalog.functions.values()],
+)

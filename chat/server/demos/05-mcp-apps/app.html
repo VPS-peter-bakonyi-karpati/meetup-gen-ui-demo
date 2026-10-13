@@ -7,31 +7,26 @@
   <!-- The MCP App of the hotel MCP server (`mcpServer.ts`). It shows the result of `show_rooms` or
        `show_bookings`, and books or cancels with the app-only tools. `{{ASSET_BASE_URL}}` is replaced by the server. -->
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; padding: 4px; font: 14px/1.4 system-ui, sans-serif; color: #1e2422; background: transparent; }
-    h2 { margin: 0 0 12px; font-size: 18px; }
-    button { font: inherit; font-weight: 600; padding: 8px 14px; border: 1px solid #1e2422; background: #fff; color: #1e2422; cursor: pointer; }
-    button.primary { background: #1e2422; color: #fff; }
-    button:disabled { opacity: 0.5; cursor: default; }
-    input { font: inherit; padding: 7px 8px; border: 1px solid #b9c2be; width: 100%; }
-    label { display: grid; gap: 2px; font-size: 12px; color: #4a5551; }
-    .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-    .card { display: flex; flex-direction: column; border: 1px solid #b9c2be; background: #fff; }
+    /* The CI of Hotel Seeblick (`src/brand.ts`), inserted by the server */
+    {{BRAND_CSS}}
+    body { padding: 4px; background: transparent; }
+    h2 { margin-bottom: 12px; font-size: 26px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .card { display: flex; flex-direction: column; border: 1px solid var(--field-line); background: #fff; }
     .card img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
-    .body { display: grid; gap: 8px; padding: 12px; flex-grow: 1; align-content: start; }
-    .meta { font-size: 12px; color: #4a5551; }
-    .name { font-size: 16px; font-weight: 700; }
-    .price { font-weight: 700; }
+    .body { display: grid; gap: 8px; padding: 16px; flex-grow: 1; align-content: start; }
+    .name { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.2; }
+    .meta { color: var(--stone); font-size: 14px; }
     .chips { display: flex; flex-wrap: wrap; gap: 4px; }
-    .chip { font-size: 12px; padding: 2px 8px; border: 1px solid #b9c2be; }
-    .actions { padding: 0 12px 12px; }
-    form { display: grid; gap: 8px; }
+    .chip { font-size: 13px; padding: 2px 8px; border: 1px solid var(--field-line); }
+    .actions { padding: 0 16px 16px; }
+    form { display: grid; gap: 10px; }
     .row { display: grid; gap: 8px; grid-template-columns: 1fr 1fr; }
-    .error { color: #a12d2d; }
-    .success { font-weight: 700; }
+    .success { font-weight: 700; color: var(--forest); }
     .list { display: grid; gap: 8px; }
-    .booking { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid #b9c2be; background: #fff; }
-    .empty { color: #4a5551; }
+    .booking { display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--field-line); background: #fff; }
+    .booking .name { font-size: 20px; }
+    .empty { color: var(--stone); }
   </style>
 </head>
 <body>
@@ -83,13 +78,13 @@
         <article class="card">
           <img src="${escape(room.imageUrl)}" alt="${escape(room.name)}" />
           <div class="body">
-            <div class="meta">${escape(room.view)} view · up to ${plural(room.maxGuests, "guest")}</div>
+            <div class="eyebrow">${escape(room.view)} view · up to ${plural(room.maxGuests, "guest")}</div>
             <div class="name">${escape(room.name)}</div>
             <div>${escape(room.description)}</div>
             <div class="chips">${room.features.map((feature) => `<span class="chip">${escape(feature)}</span>`).join("")}</div>
             <div class="price">${price}</div>
           </div>
-          <div class="actions"><button class="primary" data-book="${escape(room.id)}">Book</button></div>
+          <div class="actions"><button class="book" data-book="${escape(room.id)}">Book</button></div>
         </article>`;
     }
 
@@ -105,7 +100,7 @@
             </div>
             <label>Guests<input name="guests" type="number" min="1" max="${room.maxGuests}" value="1" required /></label>`}
           <label>Name<input name="guestName" required autocomplete="name" /></label>
-          <button class="primary" type="submit">Book ${escape(room.name)}</button>
+          <button class="book" type="submit">Book ${escape(room.name)}</button>
           <div class="error" role="alert"></div>
         </form>`;
       const form = actions.querySelector("form");

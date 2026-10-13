@@ -4,7 +4,7 @@ import { useSendMessage } from '../shared/useSendMessage.ts'
 import { sendMessageRef } from './sandboxFunctions.ts'
 
 // Open generative UI: the agent writes HTML, CSS and JS itself, which is rendered in a sandboxed iframe.
-// It is enabled in `src/demos/index.ts` via `providerProps: { openGenerativeUI: { sandboxFunctions } }`.
+// It is enabled in `src/demos/index.ts` via `providerProps: { openGenerativeUI: { sandboxFunctions, designSkill } }`.
 // Sandbox functions (`sandboxFunctions.ts`) are the only way for the generated UI to talk back to the app.
 
 export function OpenGenerativeUIDemo() {

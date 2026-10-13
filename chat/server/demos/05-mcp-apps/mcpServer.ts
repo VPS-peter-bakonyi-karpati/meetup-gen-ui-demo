@@ -9,6 +9,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { brandCss } from "../../../src/brand.ts";
 import { hotelApiUrl } from "../../config.ts";
 import { cancelBooking, createBooking, listBookings, listRooms, searchRooms } from "../../hotel.ts";
 
@@ -22,7 +23,8 @@ const appSdkBundle = readFileSync(
 
 // One app for all tools: it shows rooms or bookings, depending on the tool result
 const appUri = "ui://hotel/app.html";
-const appHtml = readFileSync(new URL("./app.html", import.meta.url), "utf8");
+// With the CI of Hotel Seeblick, which the chat app shares (`src/brand.ts`)
+const appHtml = readFileSync(new URL("./app.html", import.meta.url), "utf8").replace("{{BRAND_CSS}}", brandCss);
 
 /** Returns the data to the app (`structuredContent`) and a short summary to the model (`content`) */
 async function toolResult(summary: string, load: () => Promise<Record<string, unknown>>): Promise<CallToolResult> {
@@ -117,8 +119,10 @@ function createMcpServer(assetBaseUrl: string) {
                 uri: appUri,
                 mimeType: RESOURCE_MIME_TYPE,
                 text: appHtml.replaceAll("{{ASSET_BASE_URL}}", assetBaseUrl),
-                // The app loads the SDK from this server and the room photos from the hotel API
-                _meta: { ui: { csp: { resourceDomains: [assetBaseUrl, hotelApiUrl] } } },
+                // The app loads the SDK from this server, the room photos from the hotel API and the fonts from Google Fonts
+                _meta: {
+                    ui: { csp: { resourceDomains: [assetBaseUrl, hotelApiUrl, "https://fonts.googleapis.com", "https://fonts.gstatic.com"] } },
+                },
             },
         ],
     }));

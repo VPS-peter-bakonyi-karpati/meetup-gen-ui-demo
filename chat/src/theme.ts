@@ -1,22 +1,5 @@
 import { createTheme } from '@mui/material'
-
-// Colors and type of the Hotel Seeblick website (`website/src/index.css`)
-export const brand = {
-  forest: '#1F3A33',
-  forestDeep: '#16291F',
-  forestMid: '#2E5248',
-  brass: '#8A5F2A',
-  lake: '#2A6380',
-  lakeMist: '#E4EFF3',
-  lakeFoam: '#BFD9E6',
-  sand: '#D9C9A8',
-  ink: '#1E2422',
-  stone: '#4A5551',
-  fieldLine: '#B9C2BE',
-}
-
-const displayFont = "'Cormorant Garamond', Georgia, serif"
-const bodyFont = "'Mulish', system-ui, sans-serif"
+import { brand, fonts } from './brand.ts'
 
 export const theme = createTheme({
   palette: {
@@ -26,17 +9,18 @@ export const theme = createTheme({
     info: { main: brand.lake },
     text: { primary: brand.ink, secondary: brand.stone },
     divider: brand.fieldLine,
-    background: { default: '#FFFFFF', paper: '#FFFFFF' },
+    background: { default: brand.white, paper: brand.white },
+    error: { main: brand.error },
   },
   shape: { borderRadius: 0 },
   typography: {
-    fontFamily: bodyFont,
-    h1: { fontFamily: displayFont, fontWeight: 500 },
-    h2: { fontFamily: displayFont, fontWeight: 500 },
-    h3: { fontFamily: displayFont, fontWeight: 500 },
-    h4: { fontFamily: displayFont, fontWeight: 600 },
-    h5: { fontFamily: displayFont, fontWeight: 600 },
-    h6: { fontFamily: displayFont, fontWeight: 600, fontSize: '1.5rem', lineHeight: 1.2 },
+    fontFamily: fonts.body,
+    h1: { fontFamily: fonts.display, fontWeight: 500 },
+    h2: { fontFamily: fonts.display, fontWeight: 500 },
+    h3: { fontFamily: fonts.display, fontWeight: 500 },
+    h4: { fontFamily: fonts.display, fontWeight: 600 },
+    h5: { fontFamily: fonts.display, fontWeight: 600 },
+    h6: { fontFamily: fonts.display, fontWeight: 600, fontSize: '1.5rem', lineHeight: 1.2 },
     overline: { fontWeight: 700, letterSpacing: '0.3em' },
     button: { fontWeight: 700, textTransform: 'none' },
   },

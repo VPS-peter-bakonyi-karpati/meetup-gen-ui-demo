@@ -13,7 +13,8 @@ import {
 } from '@mui/material'
 import { useState } from 'react'
 import { demos } from './demos/index.ts'
-import { brand, theme } from './theme.ts'
+import { brand } from './brand.ts'
+import { theme } from './theme.ts'
 
 const drawerWidth = 280
 
