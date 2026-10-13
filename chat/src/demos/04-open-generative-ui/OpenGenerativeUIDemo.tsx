@@ -1,12 +1,20 @@
+import { useEffect } from 'react'
 import { DemoChat } from '../shared/DemoChat.tsx'
-import { NotImplementedAlert } from '../shared/NotImplementedAlert.tsx'
+import { useSendMessage } from '../shared/useSendMessage.ts'
+import { sendMessageRef } from './sandboxFunctions.ts'
 
 // Open generative UI: the agent writes HTML, CSS and JS itself, which is rendered in a sandboxed iframe.
-// TODO: enable it in `src/demos/index.ts` via `providerProps: { openGenerativeUI: { ... } }`.
-// Sandbox functions (`openGenerativeUI.sandboxFunctions`) are the only way for the generated UI
-// to talk back to the app, e.g. to send a chat message with `useSendMessage`.
+// It is enabled in `src/demos/index.ts` via `providerProps: { openGenerativeUI: { sandboxFunctions } }`.
+// Sandbox functions (`sandboxFunctions.ts`) are the only way for the generated UI to talk back to the app.
 
 export function OpenGenerativeUIDemo() {
-  // TODO: remove the alert once the demo is implemented
-  return <DemoChat header={<NotImplementedAlert />} />
+  const sendMessage = useSendMessage()
+  useEffect(() => {
+    sendMessageRef.current = sendMessage
+    return () => {
+      sendMessageRef.current = undefined
+    }
+  }, [sendMessage])
+
+  return <DemoChat />
 }
