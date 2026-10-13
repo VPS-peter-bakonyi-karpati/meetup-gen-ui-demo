@@ -6,6 +6,7 @@ import { Eyebrow, PageHeader } from '../components/brand.tsx'
 import { useRooms } from '../content/content.ts'
 import { findRoom, guestsLabel, roomImageUrl } from '../content/rooms.ts'
 import { Seo } from '../components/Seo.tsx'
+import { useAiHubAction, useAiHubContext } from '../aiHub/bridge.ts'
 
 type AvailabilityState = { status: 'idle' } | { status: 'loading' } | { status: 'error'; message: string } | { status: 'done'; rooms: Availability[] }
 
@@ -90,6 +91,38 @@ export function BookingPage() {
     // The page shows the error
     book().catch(() => {})
   }
+
+  useAiHubContext({
+    page: 'Booking',
+    form: {
+      room: room ? `${room.name} (${room.id})` : 'not chosen',
+      checkIn: checkIn || 'not chosen',
+      checkOut: checkOut || 'not chosen',
+      guests,
+      guestName: guestName || 'not filled in',
+    },
+    availability:
+      availability.status === 'done'
+        ? availability.rooms.map(({ id, totalPrice }) => ({ room: `${findRoom(rooms, id)?.name} (${id})`, totalPrice }))
+        : availability.status === 'error'
+          ? `error: ${availability.message}`
+          : availability.status === 'idle'
+            ? 'choose the dates first'
+            : 'loading',
+    error: error ?? null,
+    confirmedBooking: booking ?? null,
+  })
+
+  // For the host tools `fillBookingForm` and `submitBooking` (`aiHub/hostTools.ts`); the name is the only field not in the URL
+  useAiHubAction('setGuestName', (name: string) => setGuestName(name))
+  useAiHubAction('submitBooking', () => {
+    const missing = [!room && 'a room', !hasValidStay && 'the dates', !guestName.trim() && 'the guest name'].filter(Boolean)
+    if (missing.length > 0) throw new Error(`Fill in ${missing.join(', ')} with fillBookingForm first.`)
+    if (availability.status === 'done' && !roomAvailability) {
+      throw new Error(`The ${room!.name} is not available for this stay. Choose another room or other dates with fillBookingForm.`)
+    }
+    return book()
+  })
 
   if (booking) {
     return (

@@ -4,6 +4,7 @@ import { RoomCard } from '../components/RoomCard.tsx'
 import { useHotel, useRooms } from '../content/content.ts'
 import { findRoom, guestsLabel, roomImageUrl, roomTypeLabel, roomViewLabel } from '../content/rooms.ts'
 import { Seo } from '../components/Seo.tsx'
+import { roomContext, useAiHubContext } from '../aiHub/bridge.ts'
 import { NotFoundPage } from './NotFoundPage.tsx'
 
 export function RoomPage() {
@@ -11,6 +12,7 @@ export function RoomPage() {
   const hotel = useHotel()
   const rooms = useRooms()
   const room = findRoom(rooms, roomId)
+  useAiHubContext({ page: 'Room', room: room ? { ...roomContext(room), bed: room.bed, floor: room.floor, description: room.longDescription } : `Room ${roomId} doesn't exist` })
 
   if (!room) {
     return <NotFoundPage />

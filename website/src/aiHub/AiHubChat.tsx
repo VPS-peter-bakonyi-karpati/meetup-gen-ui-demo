@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router'
+import { useRooms } from '../content/content.ts'
+import { connectBridge, disconnectBridge, type AiHubBridge } from './bridge.ts'
 import { apiKey, widgetId } from './config.ts'
+import { createHostTools } from './hostTools.ts'
 
 const attributes: Record<string, string | undefined> = {
   'api-key': apiKey,
@@ -20,6 +24,9 @@ const setSize = (chat: HTMLElement, panel: HTMLElement) => {
  */
 export function AiHubChat({ open, onClose }: { open: boolean; onClose: () => void }) {
   const panelRef = useRef<HTMLDivElement>(null)
+  const chatRef = useRef<HTMLElement>(null)
+  const navigate = useNavigate()
+  const rooms = useRooms()
 
   useEffect(() => {
     const panel = panelRef.current
@@ -35,6 +42,7 @@ export function AiHubChat({ open, onClose }: { open: boolean; onClose: () => voi
     // The closed panel keeps its size, as it is only moved out of the viewport
     setSize(chat, panel)
     panel.appendChild(document.adoptNode(chat))
+    chatRef.current = chat
 
     // Once rendered, the web component resizes its chat on a size change without rendering it again
     const resizeObserver = new ResizeObserver(() => setSize(chat, panel))
@@ -43,8 +51,24 @@ export function AiHubChat({ open, onClose }: { open: boolean; onClose: () => voi
     return () => {
       resizeObserver.disconnect()
       chat.remove()
+      chatRef.current = null
     }
   }, [])
+
+  // The bridge gives the agent the context of the page and the host tools (`bridge.ts`, `hostTools.ts`)
+  useEffect(() => {
+    const chat = chatRef.current
+    if (!chat) return
+    let connected = true
+    // The element only gets its `bridge` once the script of the web component has defined it
+    void customElements.whenDefined('ai-hub-chat').then(() => {
+      if (connected) connectBridge((chat as HTMLElement & { bridge: AiHubBridge }).bridge, createHostTools({ navigate, rooms }))
+    })
+    return () => {
+      connected = false
+      disconnectBridge()
+    }
+  }, [navigate, rooms])
 
   if (!apiKey) return null
 

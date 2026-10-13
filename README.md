@@ -116,7 +116,7 @@ Some prompts you might want to try in each approach:
 
 ### Solution
 
-The `solution` branch implements all four approaches and the bonus. Each approach is in its own commit. `main` keeps the skeletons for the participants.
+The `solution` branch implements all four approaches, the bonus and the side quest. Each of them is in its own commit. `main` keeps the skeletons for the participants.
 
 | Approach | Implementation | What we learned |
 | --- | --- | --- |
@@ -131,6 +131,14 @@ The `solution` branch implements all four approaches and the bonus. Each approac
 - Declarative: the catalog replaces the basic `Text`, `Button`, `Card`, `Divider` and `TextField` with MUI versions that keep the A2UI schema (`brandedBasics.tsx`). A button whose action books something is always brass, whatever the agent chose.
 - Fully open: the agent only follows the CI when it is told to, so `designSkill` gives it the rules and a base stylesheet. This is the only approach where the CI depends on the model.
 - MCP Apps: the server puts the brand CSS into the app HTML.
+
+**Side quest (Step 3):** the AI Hub chat on the website gets the context of the page and seven tools, see "Context and tools" in `website/README.md`. What we learned:
+
+- The agent keeps the tools and the context of the start of its answer. So every tool that changes the page returns the new context, and the agent can continue with it in the same answer.
+- Every page sends its own context, including the forms the guest is filling in. A page without context would leave the context of the previous page.
+- Tools without `readOnlyHint` (`submitBooking`, `sendContactMessage`) show an approval in the chat. The agent didn't call them until the tool description said that the chat asks for approval itself.
+- The context has today's date, so the agent understands "this Friday".
+- The `Book now` button of the booking page did nothing, as the form had no `id`. This is fixed in its own commit.
 
 ## Step 3: Side quest – let the Dextinity AI Hub control the website
 

@@ -6,6 +6,7 @@ import { useHotel, useRooms, type Hotel } from '../content/content.ts'
 import { RoomCard } from '../components/RoomCard.tsx'
 import { findRoom, guestsLabel, roomImageUrl, type Room } from '../content/rooms.ts'
 import { Seo } from '../components/Seo.tsx'
+import { roomContext, useAiHubContext } from '../aiHub/bridge.ts'
 
 const amenities = ['Restaurant', 'Spa with sauna and steam bath', 'Private beach and jetty', 'Rowing boats and paddle boards']
 
@@ -136,6 +137,13 @@ export function HomePage() {
   const rooms = useRooms()
   const { title, description, jsonLd } = metadataOf(hotel, rooms)
   const featuredRooms = featuredRoomIds.map((id) => findRoom(rooms, id)!)
+  useAiHubContext({
+    page: 'Home',
+    amenities,
+    featuredRooms: featuredRooms.map(roomContext),
+    faq: faqsOf(hotel).map(({ question, answer }) => ({ question, answer })),
+    arrival: arrivalOf(hotel),
+  })
 
   return (
     <>

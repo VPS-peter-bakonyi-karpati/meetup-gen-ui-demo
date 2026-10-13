@@ -5,7 +5,7 @@ Notes for coding agents working in this repository. The meetup instructions are 
 ## Branches
 
 - `main` is the starting point for the meetup participants: the generative UI demos are skeletons with `TODO`s. Don't implement the demos on `main`.
-- `solution` has the implemented demos and the CI bonus (see "Solution" in `README.md`).
+- `solution` has the implemented demos, the CI bonus and the side quest (see "Solution" in `README.md`).
 
 ## Apps and commands
 
@@ -28,6 +28,14 @@ Node.js 24 or later. `./install.sh` installs all three apps. There is no test su
 - Provider props of a demo (A2UI catalog, open generative UI) go into `providerProps` in `chat/src/demos/index.ts`. They are created outside the provider, so they can't use hooks; see `sendMessageRef` in `chat/src/demos/04-open-generative-ui/sandboxFunctions.ts` for how to reach the agent from there.
 - `chat/src/brand.ts` is the only place for the Hotel Seeblick colors, fonts and design rules. It has no imports, so the server can use it too. The original CI is in `website/src/index.css`.
 
+## Website and AI Hub
+
+- The website connects the AI Hub chat in `website/src/aiHub/` (see "Context and tools" in `website/README.md`). The bridge API is described in `ai-hub-context-and-tools.md`.
+- A new page must call `useAiHubContext`, or the agent keeps the context of the previous page.
+- State that is not in the URL (form fields) needs a page action (`useAiHubAction`) before a tool can change it.
+- Tools that change something outside the page (booking, sending a message) must not have `readOnlyHint`, so the guest approves them.
+- The web component is loaded from the AI Hub staging deployment. It needs `VITE_AI_HUB_API_KEY` in `website/.env.local`, with `localhost:3000` on the key's allowed domains.
+
 ## Code style
 
 - Match the surrounding code: client code (`chat/src`, `website/src`) uses 2 spaces, single quotes and no semicolons; server code (`chat/server`, `api/src`) uses 4 spaces, double quotes and semicolons.
@@ -48,3 +56,5 @@ Node.js 24 or later. `./install.sh` installs all three apps. There is no test su
 - Open generative UI: the model sometimes calls `generateSandboxedUi` in the same step as the data tool, before it has the data. The prompt tells it to wait for the tool results.
 - MCP Apps: models send empty strings for optional tool parameters. Treat empty values as missing.
 - MCP Apps: register `app.ontoolresult` before `await app.connect()`, or the first result can be lost.
+- AI Hub: the agent keeps the tools and the context of the start of its answer, so a tool that changes the page must return the new context (`contextAfterChange` in `website/src/aiHub/bridge.ts`).
+- AI Hub: the agent can't list its tools when asked, but it uses them. Test a tool by asking for its action, not by asking the agent about it.

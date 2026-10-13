@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { Eyebrow, PageHeader } from '../components/brand.tsx'
-import { useHotel, type Hotel } from '../content/content.ts'
+import { contactTopics, useHotel, type Hotel } from '../content/content.ts'
 import { Seo } from '../components/Seo.tsx'
+import { useAiHubAction, useAiHubContext } from '../aiHub/bridge.ts'
 
 const descriptionOf = (hotel: Hotel) =>
   `Contact ${hotel.name} in ${hotel.city}: phone ${hotel.phone}, email ${hotel.email}, reception ${hotel.receptionHours}. Directions by car, train and boat.`
@@ -12,8 +13,6 @@ const directionsOf = (hotel: Hotel) => [
   { id: 'train', title: 'By train', text: `Travel to Salzburg main station and take the bus to ${hotel.city}. On request, we pick you up from the bus stop.` },
   { id: 'boat', title: 'By boat', text: 'From May to October, the lake boats stop at the jetty next to the hotel.' },
 ]
-
-const contactTopics = ['Question about a booking', 'Table in the restaurant', 'Spa and treatments', 'Something else']
 
 const emptyMessage = { name: '', email: '', topic: contactTopics[0], message: '' }
 
@@ -54,6 +53,27 @@ export function ContactPage() {
     event.preventDefault()
     send()
   }
+
+  useAiHubContext({
+    page: 'Contact',
+    contact: { phone: hotel.phone, email: hotel.email, reception: hotel.receptionHours },
+    directions: directionsOf(hotel).map(({ title, text }) => ({ title, text })),
+    form: sentBy ? `sent by ${sentBy}` : values,
+  })
+
+  // For the host tools `fillContactForm` and `sendContactMessage` (`aiHub/hostTools.ts`)
+  useAiHubAction('fillContactForm', (input: Partial<typeof emptyMessage>) => {
+    const filledIn = Object.fromEntries(Object.entries(input).filter(([, value]) => value !== undefined))
+    setSentBy(undefined)
+    setValues((previous) => ({ ...previous, ...filledIn }))
+  })
+  useAiHubAction('sendContactMessage', () => {
+    const missing = [!values.name.trim() && 'the name', !values.email.includes('@') && 'a valid email', !values.message.trim() && 'the message']
+      .filter(Boolean)
+    if (missing.length > 0) throw new Error(`Fill in ${missing.join(', ')} with fillContactForm first.`)
+    send()
+    return { sent: true }
+  })
 
   return (
     <>

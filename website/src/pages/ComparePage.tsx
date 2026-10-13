@@ -4,6 +4,7 @@ import { PageHeader } from '../components/brand.tsx'
 import { useRooms } from '../content/content.ts'
 import { allFeatures, capitalize, findRoom, roomImageUrl, roomTypeLabel, roomViewLabel, type Room } from '../content/rooms.ts'
 import { Seo } from '../components/Seo.tsx'
+import { roomContext, useAiHubContext } from '../aiHub/bridge.ts'
 
 interface Row {
   label: string
@@ -53,6 +54,7 @@ export function ComparePage() {
   }
 
   const selectedRooms = [roomA, roomB]
+  useAiHubContext({ page: 'Compare', comparedRooms: selectedRooms.map((room) => (room ? roomContext(room) : 'not chosen')) })
 
   return (
     <>

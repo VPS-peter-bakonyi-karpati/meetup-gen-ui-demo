@@ -1,6 +1,6 @@
 # Hotel Seeblick website
 
-Website of the fictional Hotel Seeblick (Vite + React + React Router). It embeds the chat of the AI Hub as a web component, without any interaction between the chat and the website.
+Website of the fictional Hotel Seeblick (Vite + React + React Router). It embeds the chat of the AI Hub as a web component, which knows what the guest sees and can use the website (see "AI Hub chat").
 
 The design tokens are in `src/index.css`, and the motifs (wave, mountains, page header) in `src/components/brand.tsx`.
 
@@ -42,3 +42,13 @@ VITE_AI_HUB_WIDGET_ID=       # only for a "Widget" API key
 ```
 
 Without an API key, the chat is not shown.
+
+### Context and tools
+
+The chat uses the `bridge` of the web component (beta, see `../ai-hub-context-and-tools.md`), connected in `src/aiHub/AiHubChat.tsx`:
+
+- **Context** (`src/aiHub/bridge.ts`): every page calls `useAiHubContext` with what it shows, e.g. the filters and the shown rooms, or the booking form and the availability. The context also has the URL and today's date.
+- **Tools** (`src/aiHub/hostTools.ts`): `navigateTo`, `filterRooms`, `compareRooms`, `fillBookingForm` and `fillContactForm` run without asking. `submitBooking` and `sendContactMessage` change something, so the guest approves them in the chat.
+- **Page actions**: the guest name and the contact form are React state, not URL parameters. The pages register actions with `useAiHubAction`, which the tools call with `runPageAction`.
+
+The agent keeps the context of the start of its answer, so a tool that changes the page returns the new context (`contextAfterChange`).

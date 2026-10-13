@@ -4,6 +4,7 @@ import { RoomCard } from '../components/RoomCard.tsx'
 import { useRooms } from '../content/content.ts'
 import { allFeatures, capitalize, filterRooms, roomFiltersFromParams, roomTypes, roomViews, type RoomSort } from '../content/rooms.ts'
 import { Seo } from '../components/Seo.tsx'
+import { roomContext, useAiHubContext } from '../aiHub/bridge.ts'
 
 const sorts: { value: RoomSort; label: string }[] = [
   { value: 'price-asc', label: 'Price: low to high' },
@@ -34,6 +35,7 @@ export function RoomsPage() {
   }
 
   const visibleRooms = filterRooms(rooms, filters)
+  useAiHubContext({ page: 'Rooms', filters, shownRooms: visibleRooms.map(roomContext) })
 
   return (
     <>

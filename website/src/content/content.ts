@@ -19,6 +19,9 @@ export interface Hotel {
   receptionHours: string
 }
 
+/** Topics of the contact form (`/contact`) */
+export const contactTopics = ['Question about a booking', 'Table in the restaurant', 'Spa and treatments', 'Something else']
+
 export interface Content {
   hotel: Hotel
   rooms: Room[]
