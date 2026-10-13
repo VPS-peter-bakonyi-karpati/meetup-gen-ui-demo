@@ -114,6 +114,24 @@ Some prompts you might want to try in each approach:
 - "Show my bookings" / "Cancel my booking"
 - Something unexpected, e.g. "Show the prices of all rooms as a chart"
 
+### Solution
+
+The `solution` branch implements all four approaches and the bonus. Each approach is in its own commit. `main` keeps the skeletons for the participants.
+
+| Approach | Implementation | What we learned |
+| --- | --- | --- |
+| Controlled | Four MUI components (`chat/src/demos/02-controlled/components/`): room cards, room comparison, booking confirmation, booking list. Their buttons send chat messages with `useSendMessage`. | `useComponent` returns an empty tool result and asks for a follow-up by default, so the agent showed the same component again. `followUp: false` ends the turn instead. |
+| Declarative (A2UI) | A catalog (`chat/src/demos/03-declarative/`) with hotel blocks (`RoomCard`, `BookingSummary`, `PriceTag`, `FeatureList`, `BarChart`) on top of the basic catalog. Button clicks go to the agent as `log_a2ui_event`. | The agent sees a click only in the run that follows it, not in the chat history. So the prompt tells it to name what was clicked in its reply; otherwise it forgets which room the guest wanted to book. |
+| Fully open | Two sandbox functions (`chat/src/demos/04-open-generative-ui/sandboxFunctions.ts`): `sendChatMessage` for buttons, `loadImage` for room photos. | The sandbox has an opaque origin, and Chrome blocks its requests to `localhost` (Local Network Access). `loadImage` loads a photo in the app, through a Vite proxy for `/room-images`, and returns a data URL. |
+| MCP Apps | `show_rooms` and `show_bookings` with one HTML app (`chat/server/demos/05-mcp-apps/app.html`). The app books and cancels with app-only tools (`visibility: ["app"]`) and tells the agent with `sendMessage`. | The model sends empty strings for optional parameters, so the tools treat empty values as missing. `tsx watch` does not restart when `app.html` changes. |
+
+**Bonus (CI):** `chat/src/brand.ts` has the colors, fonts and rules of the website and is the only place they are defined. Each approach gets the CI in its own way:
+
+- Controlled: the MUI theme (`chat/src/theme.ts`) uses `brand.ts`, so the components follow the CI without extra work.
+- Declarative: the catalog replaces the basic `Text`, `Button`, `Card`, `Divider` and `TextField` with MUI versions that keep the A2UI schema (`brandedBasics.tsx`). A button whose action books something is always brass, whatever the agent chose.
+- Fully open: the agent only follows the CI when it is told to, so `designSkill` gives it the rules and a base stylesheet. This is the only approach where the CI depends on the model.
+- MCP Apps: the server puts the brand CSS into the app HTML.
+
 ## Step 3: Side quest – let the Dextinity AI Hub control the website
 
 The website embeds our [Dextinity AI Hub](https://www.dextinity.com/de) chat, but the chat knows nothing about the website. Change that with the beta client tools and context, see [ai-hub-context-and-tools.md](ai-hub-context-and-tools.md). Start in `website/src/aiHub/AiHubChat.tsx`.
