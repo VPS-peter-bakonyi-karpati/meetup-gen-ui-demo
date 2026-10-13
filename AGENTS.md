@@ -40,7 +40,7 @@ The website connects the AI Hub chat in `website/src/aiHub/` (the solution of St
 | `config.ts` | API key and widget id from `.env.local` |
 
 - **New page:** call `useAiHubContext` with what the page shows. Otherwise the agent keeps the context of the previous page.
-- **New tool:** add it to `createHostTools`. Return `contextAfterChange()` when the tool changes the page, so the agent sees the result in the same answer. Throw errors that tell the agent how to fix the call.
+- **New tool:** add it to `createHostTools`. Return `contextAfterChange()` when the tool changes the page, so the agent sees the result in the same answer. When the page loads data after the navigation (availability, occupancy), pass a check to `contextAfterChange` that waits for it, as `fillBookingForm` and `showCalendar` do. Throw errors that tell the agent how to fix the call.
 - **Form state:** state that is not in the URL (the booking name, the contact form) needs a page action (`useAiHubAction`) before a tool can change it.
 - **Approval:** tools that change something outside the page (booking, sending a message) must not have `readOnlyHint`, so the guest approves them in the chat. Say so in the tool description, or the agent asks for confirmation itself and doesn't call the tool.
 - The web component is loaded from the AI Hub staging deployment. It needs `VITE_AI_HUB_API_KEY` in `website/.env.local`, with `localhost:3000` on the key's allowed domains.

@@ -3,6 +3,7 @@
 import type { NavigateFunction } from 'react-router'
 import { contactTopics } from '../content/content.ts'
 import { allFeatures, roomTypes, roomViews, type Room, type RoomFilters } from '../content/rooms.ts'
+import { thisMonth } from '../lib/dates.ts'
 import { contextAfterChange, runPageAction, type HostTool } from './bridge.ts'
 
 const pages = ['/', '/rooms', '/rooms/<roomId>', '/compare', '/calendar', '/booking', '/contact']
@@ -16,7 +17,7 @@ export function createHostTools({ navigate, rooms }: { navigate: NavigateFunctio
   return [
     {
       name: 'navigateTo',
-      description: `Opens a page of the website: ${pages.join(', ')}. Room ids: ${roomList}. The availability calendar takes /calendar?month=YYYY-MM&room=<roomId>&room=<roomId> (without rooms, it shows all rooms). Returns what the page shows.`,
+      description: `Opens a page of the website: ${pages.join(', ')}. Room ids: ${roomList}. For the availability calendar of a month or of some rooms, use showCalendar. Returns what the page shows.`,
       inputSchema: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
       readOnlyHint: true,
       handler: async ({ path }: { path: string }) => {
@@ -70,6 +71,36 @@ export function createHostTools({ navigate, rooms }: { navigate: NavigateFunctio
       handler: async ({ a, b }: { a: string; b: string }) => {
         await navigate(`/compare?${new URLSearchParams({ a, b })}`)
         return contextAfterChange()
+      },
+    },
+    {
+      name: 'showCalendar',
+      description:
+        'Shows the availability calendar (/calendar) for a month and for the given rooms, so the guest sees on which nights they are free. Use it to find free nights, e.g. "when is the Seesuite free in December?". Fields that are left out keep their value; an empty list of rooms shows all rooms. Returns the free rooms of every night of the month.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          month: { type: 'string', pattern: '^\\d{4}-\\d{2}$', description: 'Month in the format YYYY-MM, not before the current month' },
+          roomIds: { type: 'array', items: { type: 'string', enum: roomIds }, description: 'Rooms to show; empty for all rooms' },
+        },
+      },
+      readOnlyHint: true,
+      handler: async ({ month, roomIds: chosenRoomIds }: { month?: string; roomIds?: string[] }) => {
+        if (month && !/^\d{4}-\d{2}$/.test(month)) throw new Error(`The month must be in the format YYYY-MM, e.g. ${thisMonth()}.`)
+        if (month && month < thisMonth()) throw new Error(`The calendar starts with the current month, ${thisMonth()}.`)
+        // The month and the rooms are in the URL of the calendar; on another page, it starts with this month and all rooms
+        const params = new URLSearchParams(location.pathname === '/calendar' ? location.search : '')
+        if (month) {
+          if (month === thisMonth()) params.delete('month')
+          else params.set('month', month)
+        }
+        if (chosenRoomIds) {
+          params.delete('room')
+          for (const id of chosenRoomIds) params.append('room', id)
+        }
+        await navigate(`/calendar?${params}`)
+        // Waits for the occupancy of the month, so the agent gets the free nights
+        return contextAfterChange((context) => context.freeRoomsPerNight !== 'loading')
       },
     },
     {

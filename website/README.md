@@ -49,7 +49,7 @@ Without an API key, the chat is not shown.
 The chat uses the `bridge` of the web component (beta, see `../ai-hub-context-and-tools.md`), connected in `src/aiHub/AiHubChat.tsx`:
 
 - **Context** (`src/aiHub/bridge.ts`): every page calls `useAiHubContext` with what it shows, e.g. the filters and the shown rooms, the free rooms per night of the calendar, or the booking form and the availability. The context also has the URL and today's date.
-- **Tools** (`src/aiHub/hostTools.ts`): `navigateTo`, `filterRooms`, `compareRooms`, `fillBookingForm` and `fillContactForm` run without asking. `submitBooking` and `sendContactMessage` change something, so the guest approves them in the chat.
+- **Tools** (`src/aiHub/hostTools.ts`): `navigateTo`, `filterRooms`, `compareRooms`, `showCalendar`, `fillBookingForm` and `fillContactForm` run without asking. `submitBooking` and `sendContactMessage` change something, so the guest approves them in the chat.
 - **Page actions**: the guest name and the contact form are React state, not URL parameters. The pages register actions with `useAiHubAction`, which the tools call with `runPageAction`.
 
 The agent keeps the context of the start of its answer, so a tool that changes the page returns the new context (`contextAfterChange`).

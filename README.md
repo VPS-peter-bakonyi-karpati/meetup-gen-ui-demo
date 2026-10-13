@@ -157,6 +157,7 @@ The `solution` branch connects the chat in `website/src/aiHub/`:
 | `/rooms` | The filters and the rooms they show |
 | `/rooms/:roomId` | The room with its description |
 | `/compare` | The two compared rooms |
+| `/calendar` | The month, the chosen rooms and the free rooms of every night |
 | `/booking` | The form (room, dates, guests, name), which rooms are available with their total price, and the booking once it is confirmed |
 | `/contact` | Phone, email, reception hours, directions, and the contact form |
 
@@ -167,6 +168,7 @@ The `solution` branch connects the chat in `website/src/aiHub/`:
 | `navigateTo` | Opens a page | – |
 | `filterRooms` | Sets the filters of the room overview | – |
 | `compareRooms` | Opens the comparison of two rooms | – |
+| `showCalendar` | Opens the availability calendar for a month and for chosen rooms, and returns the free rooms per night | – |
 | `fillBookingForm` | Fills in the booking form, including the name | – |
 | `submitBooking` | Books, as if the guest clicked "Book now" | Guest approves in the chat |
 | `fillContactForm` | Fills in the contact form | – |
@@ -179,6 +181,7 @@ The guest name and the contact form are React state, not URL parameters. So the 
 - "Which page am I on, and is breakfast included?"
 - "Show me rooms with a lake view for 2 people, cheapest first"
 - "Compare the two suites for me"
+- "When are the Seesuite and the Bergsuite free in December?"
 - "Please book the Seezimmer from this Friday to Sunday for 2 guests, my name is …"
 - "Send the hotel a message that I'd like a table for 2 in the restaurant on Friday at 7 pm"
 
@@ -188,6 +191,8 @@ The guest name and the contact form are React state, not URL parameters. So the 
 - Every page has to send its context, including the forms the guest is filling in. Otherwise the agent keeps the context of the previous page.
 - The context is what the guest sees, nothing more. On the rooms page, the agent doesn't know whether breakfast is included, as only the homepage shows that.
 - Tools without `readOnlyHint` (`submitBooking`, `sendContactMessage`) show "Run tool …?" with Approve and Reject in the chat. The agent didn't call them until their descriptions said that the chat asks the guest for approval itself.
+- `showCalendar` waits until the occupancy of the month has loaded before it returns, like `fillBookingForm` waits for the availability. Without that, the agent gets `loading` instead of the free nights.
+- The agent sometimes says it can't do something that it has just done with a tool (e.g. "I don't know how to change the calendar view" after `showCalendar` changed it). The answer text comes from the AI Hub agent, so check the page, not only the text.
 - A tool error goes to the agent as `failed: <message>`, so the errors say what to do, e.g. "Fill in the guest name with fillBookingForm first."
 - The agent can't list its tools when asked, but it uses them.
 - The "Book now" button of the booking page did nothing, as the form had no `id`. The fix is also in a separate pull request for `main`.
