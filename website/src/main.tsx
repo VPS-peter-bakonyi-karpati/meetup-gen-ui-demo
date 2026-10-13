@@ -7,6 +7,7 @@ import { Layout } from './components/Layout.tsx'
 import { loadContent } from './content/content.ts'
 import { ErrorPage } from './pages/ErrorPage.tsx'
 import { BookingPage } from './pages/BookingPage.tsx'
+import { CalendarPage } from './pages/CalendarPage.tsx'
 import { ComparePage } from './pages/ComparePage.tsx'
 import { ContactPage } from './pages/ContactPage.tsx'
 import { HomePage } from './pages/HomePage.tsx'
@@ -28,6 +29,7 @@ const router = createBrowserRouter([
       { path: '/rooms', element: <RoomsPage /> },
       { path: '/rooms/:roomId', element: <RoomPage /> },
       { path: '/compare', element: <ComparePage /> },
+      { path: '/calendar', element: <CalendarPage /> },
       { path: '/booking', element: <BookingPage /> },
       { path: '/contact', element: <ContactPage /> },
       { path: '*', element: <NotFoundPage /> },

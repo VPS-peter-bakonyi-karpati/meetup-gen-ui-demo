@@ -2,7 +2,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { port, serverUrl } from "./config.ts";
-import { cancelBooking, createBooking, listBookings, searchRooms } from "./bookings.ts";
+import { cancelBooking, createBooking, listBookings, listOccupancy, searchRooms } from "./bookings.ts";
 import { hotel as hotelDetails } from "./hotel.ts";
 import { listRooms, readRoomImage } from "./rooms.ts";
 
@@ -14,6 +14,11 @@ const hotel = new Hono()
     .get("/availability", (c) => {
         const { checkIn = "", checkOut = "", guests = "1" } = c.req.query();
         return c.json(searchRooms({ checkIn, checkOut, guests: Number(guests) }));
+    })
+    // When the rooms are booked, for the calendar of the website; without the guests' names
+    .get("/occupancy", (c) => {
+        const { from = "", to = "" } = c.req.query();
+        return c.json(listOccupancy({ from, to }));
     })
     .get("/bookings", (c) => c.json(listBookings(c.req.query("guestName") ?? "")))
     .post("/bookings", async (c) => {

@@ -351,6 +351,40 @@ textarea { padding: 12px; border: 1px solid var(--field-line); border-radius: 0;
 /* The lake blue focus ring doesn't stand out on forest green */
 .companion-switch:focus-visible, .companion-close:focus-visible { outline-color: var(--sand); }
 
+/* Availability calendar */
+.calendar-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.calendar-header h2 { font-size: 40px; }
+.calendar-header .chip { min-width: 48px; font-size: var(--fs-body); }
+.calendar-header .chip:disabled { opacity: 0.4; cursor: not-allowed; }
+.calendar { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.calendar-loading .calendar-day { opacity: 0.5; }
+.calendar-weekday { padding-bottom: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone); text-align: center; }
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 96px;
+  padding: 10px;
+  border: 1px solid var(--lake-mist);
+  color: var(--ink);
+  text-decoration: none;
+}
+.calendar-day-number { font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1; }
+.calendar-day-status { font-size: 13px; color: var(--stone); }
+.calendar-bar { display: flex; gap: 2px; margin-top: auto; }
+.calendar-bar-segment { flex: 1; height: 6px; background: var(--lake); }
+.calendar-bar-segment-booked { background: var(--field-line); }
+.calendar-day-free { background: var(--success); }
+.calendar-day-partly { background: var(--lake-mist); }
+.calendar-day-full { background: repeating-linear-gradient(-45deg, var(--white) 0 6px, var(--lake-mist) 6px 8px); }
+.calendar-day-full .calendar-day-status { color: var(--error); }
+a.calendar-day:hover { border-color: var(--forest); color: var(--ink); }
+.calendar-day-past { color: var(--field-line); }
+.calendar-day-outside { opacity: 0.55; }
+.calendar-legend { display: grid; grid-template-columns: 32px 1fr; align-items: center; gap: 8px 12px; margin: 0; font-size: var(--fs-small); }
+.calendar-legend dt { display: flex; }
+.calendar-legend dd { margin: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   .site, .companion, .companion-switch-track, .companion-switch-thumb { transition: none; }
   .navigation-progress { display: none; }
@@ -378,4 +412,9 @@ textarea { padding: 12px; border: 1px solid var(--field-line); border-radius: 0;
   .compare-table th, .compare-table td { padding: 10px 8px; }
   .compare-table thead select { font-size: 18px; }
   .confirmation { padding: 28px; }
+  .calendar { gap: 3px; }
+  .calendar-day { min-height: 64px; padding: 6px 4px; }
+  .calendar-day-number { font-size: 18px; }
+  .calendar-day-status { display: none; }
+  .calendar-header h2 { font-size: 30px; }
 }

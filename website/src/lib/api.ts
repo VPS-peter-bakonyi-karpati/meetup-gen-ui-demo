@@ -21,6 +21,13 @@ export interface Booking {
   totalPrice: number
 }
 
+/** A booked stay of a room; the API leaves out the guest */
+export interface Occupancy {
+  roomId: string
+  checkIn: string
+  checkOut: string
+}
+
 export interface BookingInput {
   roomId: string
   guestName: string
@@ -49,6 +56,10 @@ export const fetchRooms = () => request<Room[]>('/api/hotel/rooms')
 
 export const fetchAvailability = ({ checkIn, checkOut, guests }: { checkIn: string; checkOut: string; guests: number }) =>
   request<Availability[]>(`/api/hotel/availability?${new URLSearchParams({ checkIn, checkOut, guests: String(guests) })}`)
+
+/** The booked stays of all rooms that overlap the period from `from` to `to` (exclusive) */
+export const fetchOccupancy = ({ from, to }: { from: string; to: string }) =>
+  request<Occupancy[]>(`/api/hotel/occupancy?${new URLSearchParams({ from, to })}`)
 
 export const createBooking = (input: BookingInput) =>
   request<Booking>('/api/hotel/bookings', {
